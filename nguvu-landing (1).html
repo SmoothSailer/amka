@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amka — Wake Up. Train. Nairobi's Gym Platform.</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root {
+  --ink:    #0D0C0A;
+  --cream:  #F5EFE0;
+  --lime:   #CAFF33;
+  --terra:  #E8552A;
+  --sand:   #D4C5A9;
+  --mid:    #1A1916;
+  --card:   #211F1B;
+  --border: rgba(245,239,224,.08);
+  --muted:  rgba(245,239,224,.4);
+}
+
+/* ─── RESET ──────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);color:var(--cream);
+  font-family:'Instrument Sans',sans-serif;
+  font-size:16px;line-height:1.6;overflow-x:hidden;
+  cursor:none;
+}
+
+/* ─── CURSOR ─────────────────────────────────────────── */
+.cur,.cur-r{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%)}
+.cur{width:8px;height:8px;background:var(--lime);mix-blend-mode:difference;transition:transform .1s}
+.cur-r{width:40px;height:40px;border:1px solid rgba(202,255,51,.3);z-index:9998;transition:all .2s ease}
+
+/* ─── NAV ────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0 48px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(13,12,10,.9);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:28px;letter-spacing:.02em;
+  color:var(--cream);
+}
+.nav-logo em{color:var(--lime);font-style:normal}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{
+  font-size:13px;font-weight:500;color:var(--muted);
+  text-decoration:none;letter-spacing:.04em;
+  transition:color .2s;text-transform:uppercase;
+}
+.nav-links a:hover{color:var(--cream)}
+.nav-cta{
+  background:var(--lime);color:var(--ink);
+  padding:9px 22px;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:15px;letter-spacing:.06em;
+  text-transform:uppercase;cursor:pointer;border:none;
+  transition:all .2s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+.nav-cta:hover{background:var(--cream);transform:translateY(-1px)}
+
+/* ─── HERO ───────────────────────────────────────────── */
+.hero{
+  min-height:100vh;padding:64px 0 0;
+  display:grid;grid-template-columns:1fr 1fr;
+  position:relative;overflow:hidden;
+}
+/* Textured bg */
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(245,239,224,.03) 80px),
+    repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(245,239,224,.03) 80px);
+  pointer-events:none;
+}
+.hero-left{
+  padding:80px 48px 80px;
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;z-index:1;
+}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--lime);margin-bottom:32px;
+}
+.hero-tag::before{
+  content:'';width:32px;height:1px;background:var(--lime);
+}
+h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:clamp(72px,8vw,120px);
+  line-height:.92;letter-spacing:-.02em;
+  text-transform:uppercase;margin-bottom:8px;
+}
+h1 .block{display:block}
+h1 .lime{color:var(--lime)}
+h1 .terra{color:var(--terra)}
+h1 .outline{
+  -webkit-text-stroke:2px var(--cream);
+  color:transparent;
+}
+.hero-rule{
+  width:100%;height:1px;background:var(--border);
+  margin:32px 0;
+}
+.hero-sub{
+  font-size:17px;color:var(--muted);line-height:1.75;
+  max-width:440px;margin-bottom:40px;
+}
+.hero-sub strong{color:var(--cream);font-weight:500}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:56px}
+.btn-primary{
+  background:var(--lime);color:var(--ink);
+  padding:16px 32px;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:16px;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;border:none;transition:all .2s;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+}
+.btn-primary:hover{background:var(--cream);transform:translateY(-2px);box-shadow:0 12px 40px rgba(202,255,51,.2)}
+.btn-outline{
+  background:transparent;color:var(--cream);
+  padding:16px 32px;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:16px;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;border:1px solid rgba(245,239,224,.2);transition:all .2s;
+}
+.btn-outline:hover{border-color:var(--cream)}
+.hero-kpis{display:flex;gap:0;border-top:1px solid var(--border)}
+.kpi-item{
+  flex:1;padding:20px 0;
+  border-right:1px solid var(--border);
+}
+.kpi-item:last-child{border-right:none}
+.kpi-num{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:42px;font-weight:900;line-height:1;
+  color:var(--cream);letter-spacing:-.02em;
+}
+.kpi-num sup{font-size:20px;color:var(--lime)}
+.kpi-lbl{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.04em;text-transform:uppercase}
+
+/* HERO RIGHT — big phone */
+.hero-right{
+  background:var(--mid);
+  border-left:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;padding:40px;
+}
+.hero-right::before{
+  content:'AMKA';
+  position:absolute;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:220px;color:rgba(202,255,51,.04);
+  letter-spacing:-.05em;text-transform:uppercase;
+  bottom:-20px;left:-20px;line-height:1;pointer-events:none;
+  user-select:none;
+}
+.big-phone{
+  width:240px;height:500px;
+  background:#111;border-radius:40px;
+  border:6px solid #2a2826;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05),0 48px 100px rgba(0,0,0,.8);
+  animation:hover-float 7s ease-in-out infinite;
+}
+@keyframes hover-float{
+  0%,100%{transform:translateY(0) rotate(-1.5deg)}
+  50%{transform:translateY(-16px) rotate(1deg)}
+}
+.bp-notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:80px;height:24px;background:#111;border-radius:0 0 14px 14px;z-index:10;
+}
+/* Phone screen */
+.bp-screen{width:100%;height:100%;overflow:hidden;background:#111}
+.bp-hd{
+  padding:30px 14px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:#0D0C0A;
+}
+.bp-logo-row{display:flex;align-items:center;gap:7px}
+.bp-logo-box{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--lime);display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:14px;color:var(--ink);
+}
+.bp-gname{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--cream);
+}
+.bp-avi{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(245,239,224,.08);display:flex;align-items:center;justify-content:center;
+  font-size:11px;
+}
+.bp-card{
+  margin:8px 12px;border-radius:12px;
+  background:var(--lime);padding:14px;color:var(--ink);
+}
+.bp-card-lbl{font-size:9px;font-weight:600;opacity:.6;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.bp-card-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.01em;text-transform:uppercase}
+.bp-card-sub{font-size:9px;opacity:.55;margin-top:2px}
+.bp-stats{display:flex;gap:6px;margin:6px 12px 0}
+.bp-stat{
+  flex:1;background:rgba(245,239,224,.06);
+  border-radius:8px;padding:8px;text-align:center;
+}
+.bp-sn{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--lime)}
+.bp-sl{font-size:8px;color:rgba(245,239,224,.35);margin-top:1px;text-transform:uppercase;letter-spacing:.04em}
+.bp-section{margin:10px 12px 0}
+.bp-stitle{
+  font-size:9px;text-transform:uppercase;letter-spacing:.1em;
+  color:rgba(245,239,224,.3);margin-bottom:6px;font-weight:600;
+}
+.bp-ex{
+  background:rgba(245,239,224,.05);border-radius:8px;
+  padding:9px 10px;display:flex;align-items:center;gap:8px;margin-bottom:5px;
+}
+.bp-ex-ico{
+  width:28px;height:28px;border-radius:7px;
+  background:rgba(202,255,51,.12);display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;
+}
+.bp-ex-name{font-size:10px;font-weight:600;color:var(--cream)}
+.bp-ex-sub{font-size:8px;color:rgba(245,239,224,.35);margin-top:1px}
+.bp-badge{
+  margin-left:auto;font-size:8px;padding:2px 8px;
+  border-radius:100px;background:rgba(202,255,51,.15);color:var(--lime);
+  font-weight:600;flex-shrink:0;
+}
+.bp-nav{
+  position:absolute;bottom:0;left:0;right:0;
+  display:flex;justify-content:space-around;
+  padding:10px 0 14px;
+  background:rgba(13,12,10,.96);border-top:1px solid rgba(245,239,224,.05);
+}
+.bp-nav-i{display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.3}
+.bp-nav-i.on{opacity:1}
+.bp-nav-ico{font-size:15px}
+.bp-dot{width:3px;height:3px;border-radius:50%;background:var(--lime);opacity:0}
+.bp-nav-i.on .bp-dot{opacity:1}
+
+/* ─── TICKER ─────────────────────────────────────────── */
+.ticker{
+  background:var(--lime);overflow:hidden;
+  padding:14px 0;border-top:none;border-bottom:none;
+}
+.ticker-track{
+  display:flex;gap:0;animation:tick 24s linear infinite;width:max-content;
+}
+.ticker-item{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:15px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink);white-space:nowrap;padding:0 24px;
+  display:flex;align-items:center;gap:24px;
+}
+.ticker-item::after{content:'✦';color:rgba(13,12,10,.3);font-size:10px}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ─── GENERIC SECTION ────────────────────────────────── */
+.section{padding:100px 48px}
+.section-inner{max-width:1200px;margin:0 auto}
+.eyebrow{
+  font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--lime);margin-bottom:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--lime)}
+.display{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:clamp(40px,5vw,72px);
+  line-height:.95;letter-spacing:-.01em;text-transform:uppercase;
+  margin-bottom:16px;
+}
+.body-text{font-size:16px;color:var(--muted);max-width:500px;line-height:1.75}
+
+/* ─── HOW IT WORKS ───────────────────────────────────── */
+.hiw-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--border);margin-top:64px;
+  border:1px solid var(--border);
+}
+.hiw-card{
+  background:var(--card);padding:40px 32px;
+  position:relative;overflow:hidden;
+  transition:background .3s;
+}
+.hiw-card:hover{background:#272421}
+.hiw-num{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900;font-size:100px;color:rgba(202,255,51,.06);
+  line-height:1;margin-bottom:-16px;letter-spacing:-.04em;
+}
+.hiw-icon{font-size:32px;margin-bottom:16px;display:block}
+.hiw-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:24px;letter-spacing:.01em;text-transform:uppercase;
+  margin-bottom:10px;
+}
+.hiw-desc{font-size:14px;color:var(--muted);line-height:1.7}
+.hiw-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--lime);transform:scaleX(0);transform-origin:left;
+  transition:transform .3s;
+}
+.hiw-card:hover::after{transform:scaleX(1)}
+
+/* ─── JOIN CODE SPOTLIGHT ────────────────────────────── */
+.jc-section{
+  background:var(--terra);padding:80px 48px;
+  position:relative;overflow:hidden;
+}
+.jc-section::before{
+  content:'PWR001';
+  position:absolute;right:-40px;top:50%;transform:translateY(-50%);
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:200px;color:rgba(255,255,255,.06);letter-spacing:-.04em;
+  text-transform:uppercase;pointer-events:none;user-select:none;line-height:1;
+}
+.jc-inner{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;
+}
+.jc-left .eyebrow{color:rgba(245,239,224,.7)}
+.jc-left .eyebrow::before{background:rgba(245,239,224,.7)}
+.jc-left .display{font-size:clamp(48px,6vw,88px);color:#fff}
+.jc-left p{font-size:16px;color:rgba(255,255,255,.7);line-height:1.7;max-width:400px;margin-top:16px}
+.jc-right{display:flex;flex-direction:column;gap:20px}
+.jc-step{
+  display:flex;gap:16px;align-items:flex-start;
+  background:rgba(255,255,255,.1);border-radius:12px;padding:20px;
+  backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);
+  transition:all .2s;
+}
+.jc-step:hover{background:rgba(255,255,255,.15);transform:translateX(4px)}
+.jc-step-num{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:32px;color:rgba(255,255,255,.3);line-height:1;flex-shrink:0;width:32px;
+}
+.jc-step-title{font-weight:600;font-size:15px;color:#fff;margin-bottom:4px}
+.jc-step-desc{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6}
+.jc-code-demo{
+  background:rgba(255,255,255,.12);border-radius:12px;padding:24px;
+  border:1px solid rgba(255,255,255,.2);text-align:center;
+  backdrop-filter:blur(8px);
+}
+.jc-code-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.6);margin-bottom:10px}
+.jc-code{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:56px;letter-spacing:.25em;color:#fff;line-height:1;
+}
+.jc-code-sub{font-size:12px;color:rgba(255,255,255,.5);margin-top:8px}
+
+/* ─── NEARBY GYMS FEATURE ────────────────────────────── */
+.nearby-section{background:var(--mid);padding:100px 48px;border-top:1px solid var(--border)}
+.nearby-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.nearby-map{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:28px;position:relative;overflow:hidden;
+}
+.map-mock{
+  width:100%;aspect-ratio:4/3;border-radius:10px;
+  background:linear-gradient(135deg,#1a1916 0%,#211f1b 100%);
+  position:relative;overflow:hidden;
+}
+/* Fake map grid */
+.map-mock::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(245,239,224,.04) 40px),
+    repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(245,239,224,.04) 40px);
+}
+.map-pin{
+  position:absolute;transform:translate(-50%,-100%);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  cursor:default;
+}
+.map-pin-dot{
+  width:36px;height:36px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+}
+.map-pin-dot span{transform:rotate(45deg);display:block}
+.map-pin-label{
+  background:rgba(13,12,10,.9);color:var(--cream);
+  font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;
+  white-space:nowrap;backdrop-filter:blur(4px);
+  border:1px solid rgba(245,239,224,.1);
+}
+.map-user-pin{
+  position:absolute;top:55%;left:50%;transform:translate(-50%,-50%);
+}
+.user-dot{
+  width:14px;height:14px;border-radius:50%;background:var(--terra);
+  box-shadow:0 0 0 4px rgba(232,85,42,.2),0 0 0 8px rgba(232,85,42,.1);
+  animation:pulse-ring 2s infinite;
+}
+@keyframes pulse-ring{
+  0%{box-shadow:0 0 0 4px rgba(232,85,42,.3),0 0 0 8px rgba(232,85,42,.15)}
+  50%{box-shadow:0 0 0 8px rgba(232,85,42,.15),0 0 0 16px rgba(232,85,42,.05)}
+  100%{box-shadow:0 0 0 4px rgba(232,85,42,.3),0 0 0 8px rgba(232,85,42,.15)}
+}
+.nearby-list{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.nearby-item{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(245,239,224,.03);border:1px solid var(--border);
+  border-radius:8px;padding:12px 14px;transition:all .2s;
+}
+.nearby-item:hover{background:rgba(245,239,224,.06);border-color:rgba(202,255,51,.2)}
+.ni-color{width:4px;height:40px;border-radius:2px;flex-shrink:0}
+.ni-info{flex:1}
+.ni-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.03em}
+.ni-loc{font-size:11px;color:var(--muted);margin-top:1px}
+.ni-dist{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;
+  color:var(--lime);letter-spacing:.02em;
+}
+
+/* ─── TRANSFERS ──────────────────────────────────────── */
+.transfer-section{padding:100px 48px;border-top:1px solid var(--border)}
+.transfer-inner{max-width:1200px;margin:0 auto}
+.transfer-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;margin-top:64px}
+.transfer-left{}
+.transfer-steps{display:flex;flex-direction:column;gap:0;margin-top:32px}
+.transfer-step{
+  display:flex;gap:20px;padding:24px 0;
+  border-bottom:1px solid var(--border);
+}
+.transfer-step:last-child{border-bottom:none}
+.ts-line{display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0}
+.ts-circle{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(202,255,51,.1);border:1px solid rgba(202,255,51,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;
+  color:var(--lime);flex-shrink:0;
+}
+.ts-connector{width:1px;flex:1;background:var(--border);margin-top:6px}
+.ts-content{}
+.ts-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;text-transform:uppercase;letter-spacing:.02em;margin-bottom:4px}
+.ts-desc{font-size:14px;color:var(--muted);line-height:1.65}
+.ts-tag{
+  display:inline-block;margin-top:8px;font-size:11px;font-weight:600;
+  padding:3px 10px;border-radius:100px;background:rgba(202,255,51,.08);
+  color:var(--lime);border:1px solid rgba(202,255,51,.2);letter-spacing:.04em;text-transform:uppercase;
+}
+
+/* Transfer visual */
+.transfer-visual{position:sticky;top:80px}
+.transfer-phones{
+  display:flex;gap:-20px;justify-content:center;
+  position:relative;padding:20px 0;
+}
+.t-phone{
+  width:160px;height:320px;border-radius:28px;border:5px solid #2a2826;
+  position:relative;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);
+  transition:all .5s ease;
+}
+.t-phone-a{transform:rotate(-6deg) translateX(20px);background:#1a1916;z-index:1}
+.t-phone-b{transform:rotate(4deg) translateX(-20px);background:#1a1916;z-index:2}
+.t-phone-a:hover{transform:rotate(-2deg) translateX(10px) scale(1.05);z-index:3}
+.t-phone-b:hover{transform:rotate(1deg) translateX(-10px) scale(1.05);z-index:4}
+.t-ph-screen{width:100%;height:100%;overflow:hidden}
+.t-ph-hd{padding:18px 10px 8px;display:flex;align-items:center;gap:6px}
+.t-ph-logo{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:900;flex-shrink:0}
+.t-ph-name{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--cream)}
+.t-ph-card{margin:0 8px;border-radius:8px;padding:10px}
+.t-ph-card-lbl{font-size:7px;opacity:.6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.t-ph-card-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase}
+.t-ph-stats{display:flex;gap:4px;margin:6px 8px 0}
+.t-ph-stat{flex:1;background:rgba(255,255,255,.05);border-radius:5px;padding:5px;text-align:center}
+.t-ph-sn{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800}
+.t-ph-sl{font-size:6px;color:rgba(245,239,224,.3);text-transform:uppercase;letter-spacing:.04em}
+.t-ph-nav{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;padding:8px 0 10px;background:rgba(13,12,10,.95);border-top:1px solid rgba(255,255,255,.04)}
+.t-ph-ni{font-size:12px;opacity:.3}
+.t-ph-ni.on{opacity:1}
+.transfer-arrow{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:48px;height:48px;background:var(--lime);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;z-index:10;
+  box-shadow:0 0 0 6px rgba(202,255,51,.15),0 0 0 12px rgba(202,255,51,.07);
+  animation:pulse-lime 2.5s infinite;
+}
+@keyframes pulse-lime{
+  0%,100%{box-shadow:0 0 0 6px rgba(202,255,51,.15),0 0 0 12px rgba(202,255,51,.07)}
+  50%{box-shadow:0 0 0 10px rgba(202,255,51,.08),0 0 0 20px rgba(202,255,51,.03)}
+}
+.history-preserved{
+  margin-top:24px;background:rgba(202,255,51,.06);
+  border:1px solid rgba(202,255,51,.15);border-radius:12px;padding:20px;
+  display:flex;align-items:flex-start;gap:14px;
+}
+.hp-icon{font-size:24px;flex-shrink:0}
+.hp-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.03em;color:var(--lime);margin-bottom:4px}
+.hp-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ─── FEATURES GRID ──────────────────────────────────── */
+.features-section{background:var(--card);border-top:1px solid var(--border);padding:100px 48px}
+.features-inner{max-width:1200px;margin:0 auto}
+.feat-tabs{display:flex;gap:2px;background:rgba(245,239,224,.04);border-radius:8px;padding:4px;width:fit-content;margin:40px 0 48px;border:1px solid var(--border)}
+.feat-tab{
+  padding:10px 24px;border-radius:6px;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .2s;
+}
+.feat-tab.on{background:var(--lime);color:var(--ink)}
+.features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.feat-card{
+  background:var(--mid);border:1px solid var(--border);
+  border-radius:12px;padding:28px;transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.feat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--lime);transform:scaleX(0);transform-origin:left;transition:transform .3s;
+}
+.feat-card:hover::before{transform:scaleX(1)}
+.feat-card:hover{border-color:rgba(202,255,51,.15);transform:translateY(-2px)}
+.feat-icon{font-size:28px;margin-bottom:14px;display:block}
+.feat-title{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:20px;text-transform:uppercase;letter-spacing:.02em;margin-bottom:8px;
+}
+.feat-desc{font-size:14px;color:var(--muted);line-height:1.7}
+.feat-tag{
+  display:inline-block;margin-top:12px;font-size:10px;font-weight:600;
+  padding:2px 10px;border-radius:100px;background:rgba(245,239,224,.05);
+  color:var(--muted);border:1px solid var(--border);letter-spacing:.06em;text-transform:uppercase;
+}
+
+/* ─── CONFIGURATOR ───────────────────────────────────── */
+.config-section{padding:100px 48px;border-top:1px solid var(--border)}
+.config-inner{max-width:1200px;margin:0 auto}
+.config-layout{display:grid;grid-template-columns:1fr 380px;gap:48px;margin-top:56px;align-items:start}
+.config-panels{display:flex;flex-direction:column;gap:2px}
+.config-panel{background:var(--card);border:1px solid var(--border);padding:32px}
+.config-panel:first-child{border-radius:12px 12px 0 0}
+.config-panel:last-child{border-radius:0 0 12px 12px}
+.cp-title{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;
+  text-transform:uppercase;letter-spacing:.04em;margin-bottom:22px;
+  display:flex;align-items:center;gap:10px;
+}
+.cp-num{color:var(--lime)}
+.plan-grid{display:flex;flex-direction:column;gap:8px}
+.plan-row{
+  display:flex;justify-content:space-between;align-items:center;
+  border:1px solid var(--border);border-radius:8px;padding:14px 16px;
+  cursor:pointer;transition:all .2s;background:rgba(245,239,224,.02);
+}
+.plan-row:hover{border-color:rgba(202,255,51,.3);background:rgba(202,255,51,.03)}
+.plan-row.on{border-color:var(--lime);background:rgba(202,255,51,.06)}
+.pr-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+.pr-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.pr-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.pr-chip{font-size:10px;color:rgba(245,239,224,.4);background:rgba(245,239,224,.04);padding:2px 9px;border-radius:100px;border:1px solid var(--border)}
+.pr-price{
+  font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;
+  color:var(--lime);text-align:right;flex-shrink:0;
+}
+.pr-price small{font-size:11px;color:var(--muted);display:block;font-family:'Instrument Sans';font-weight:400}
+.pop{font-size:9px;background:var(--terra);color:#fff;padding:2px 8px;border-radius:100px;font-weight:700;letter-spacing:.04em;font-family:'Instrument Sans'}
+.branding-fields{display:flex;flex-direction:column;gap:14px}
+.field-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
+.field-input{
+  width:100%;background:rgba(245,239,224,.04);
+  border:1px solid var(--border);color:var(--cream);
+  padding:12px 14px;border-radius:6px;font-family:'Instrument Sans';font-size:14px;
+  outline:none;transition:border-color .2s;
+}
+.field-input:focus{border-color:rgba(202,255,51,.5)}
+.field-input::placeholder{color:rgba(245,239,224,.2)}
+.field-input option{background:var(--card)}
+.color-pair{display:flex;gap:10px}
+.color-field{flex:1}
+.color-row{display:flex;gap:6px;align-items:center}
+.color-row input[type=color]{width:38px;height:36px;padding:2px;border-radius:5px;cursor:pointer;background:rgba(245,239,224,.04);border:1px solid var(--border)}
+.color-row input[type=text]{flex:1;background:rgba(245,239,224,.04);border:1px solid var(--border);color:var(--cream);padding:9px 10px;border-radius:5px;font-family:'Instrument Sans';font-size:13px;outline:none}
+.logo-drop{
+  border:1px dashed rgba(245,239,224,.15);border-radius:8px;padding:22px;
+  text-align:center;cursor:pointer;transition:border-color .2s;
+}
+.logo-drop:hover{border-color:rgba(202,255,51,.4)}
+.ld-icon{font-size:24px;margin-bottom:6px}
+.ld-text{font-size:13px;color:var(--muted)}
+.ld-text strong{color:var(--lime)}
+
+/* Config preview */
+.config-preview{position:sticky;top:80px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.cp-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.preview-phone{
+  width:220px;height:450px;background:#111;border-radius:36px;
+  border:6px solid #2a2826;position:relative;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05),0 32px 64px rgba(0,0,0,.7);
+  transition:all .35s ease;
+}
+.pp-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:68px;height:20px;background:#111;border-radius:0 0 12px 12px;z-index:10}
+.pp-screen{width:100%;height:100%;overflow:hidden}
+/* reuse bp- classes */
+.join-code-box{
+  background:rgba(202,255,51,.08);border:1px solid rgba(202,255,51,.2);
+  border-radius:8px;padding:14px;text-align:center;width:100%;
+}
+.jcb-label{font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.jcb-code{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;letter-spacing:.25em;color:var(--lime)}
+.launch-btn{
+  width:100%;background:var(--lime);color:var(--ink);border:none;
+  padding:15px;font-family:'Barlow Condensed',sans-serif;font-weight:800;
+  font-size:16px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+.launch-btn:hover{background:var(--cream);transform:translateY(-1px)}
+
+/* ─── PRICING ────────────────────────────────────────── */
+.pricing-section{background:var(--mid);border-top:1px solid var(--border);padding:100px 48px}
+.pricing-inner{max-width:1200px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:56px;border:1px solid var(--border)}
+.pc{background:var(--card);padding:32px 24px;position:relative;transition:background .2s}
+.pc:hover{background:#252321}
+.pc.hot{background:var(--lime) !important;}
+.pc-tier{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:12px;font-weight:600}
+.pc.hot .pc-tier{color:rgba(13,12,10,.6)}
+.pc-price{font-family:'Barlow Condensed',sans-serif;font-size:48px;font-weight:900;line-height:1;margin-bottom:4px;letter-spacing:-.02em}
+.pc.hot .pc-price{color:var(--ink)}
+.pc-price span{font-size:14px;font-weight:400;color:var(--muted)}
+.pc.hot .pc-price span{color:rgba(13,12,10,.5)}
+.pc-members{font-size:12px;color:var(--muted);margin-bottom:24px}
+.pc.hot .pc-members{color:rgba(13,12,10,.6)}
+.pc-divider{height:1px;background:var(--border);margin-bottom:20px}
+.pc.hot .pc-divider{background:rgba(13,12,10,.15)}
+.pc-feats{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:28px}
+.pc-feats li{font-size:13px;display:flex;gap:8px;align-items:flex-start;color:rgba(245,239,224,.7)}
+.pc.hot .pc-feats li{color:rgba(13,12,10,.75)}
+.pc-feats li::before{content:'→';color:var(--lime);flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.pc.hot .pc-feats li::before{color:rgba(13,12,10,.4)}
+.pc-btn{
+  width:100%;padding:13px;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;border:none;transition:all .2s;
+}
+.pc-btn-out{background:transparent;color:var(--cream);border:1px solid rgba(245,239,224,.2)}
+.pc-btn-out:hover{border-color:var(--lime);color:var(--lime)}
+.pc-btn-dark{background:var(--ink);color:var(--lime)}
+.pc-btn-dark:hover{background:#111;transform:translateY(-1px)}
+
+/* ─── MODAL ──────────────────────────────────────────── */
+.overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(13,12,10,.92);backdrop-filter:blur(12px);align-items:center;justify-content:center}
+.overlay.on{display:flex}
+.modal{
+  background:var(--card);border:1px solid var(--border);
+  width:460px;max-width:92vw;max-height:90vh;overflow-y:auto;
+  animation:mIn .3s ease;
+}
+@keyframes mIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-hd{
+  padding:28px 32px 24px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;text-transform:uppercase;letter-spacing:.03em}
+.modal-x{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;transition:color .2s}
+.modal-x:hover{color:var(--cream)}
+.modal-body{padding:28px 32px}
+.order-box{
+  background:rgba(202,255,51,.05);border:1px solid rgba(202,255,51,.15);
+  border-radius:8px;padding:16px;margin-bottom:24px;
+}
+.order-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:var(--muted)}
+.order-row:last-child{margin-bottom:0;padding-top:10px;border-top:1px solid rgba(202,255,51,.15);font-weight:600;color:var(--lime);font-size:14px}
+.pay-methods{display:flex;gap:8px;margin-bottom:20px}
+.pm{
+  flex:1;border:1px solid var(--border);border-radius:6px;
+  padding:11px;text-align:center;cursor:pointer;transition:all .2s;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);
+}
+.pm.on{border-color:var(--lime);color:var(--lime);background:rgba(202,255,51,.06)}
+.pm-icon{font-size:18px;display:block;margin-bottom:3px}
+.m-field{margin-bottom:16px}
+.m-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px}
+.m-input{width:100%;background:rgba(245,239,224,.04);border:1px solid var(--border);color:var(--cream);padding:13px;font-family:'Instrument Sans';font-size:14px;outline:none;transition:border-color .2s;border-radius:4px}
+.m-input:focus{border-color:rgba(202,255,51,.5)}
+.go-btn{
+  width:100%;background:var(--lime);color:var(--ink);border:none;padding:16px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;
+  letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+.go-btn:hover{background:var(--cream)}
+
+/* Build screen */
+.build-wrap{display:none;padding:32px}
+.build-wrap.on{display:block}
+.build-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+.build-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.build-mini-phone{
+  width:90px;height:180px;background:#0a0a08;border-radius:16px;
+  border:3px solid #2a2826;margin:0 auto 20px;position:relative;overflow:hidden;
+  box-shadow:0 16px 48px rgba(0,0,0,.6);
+}
+.scan-line{
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--lime),transparent);
+  animation:scan-anim 1.6s ease-in-out infinite;
+  box-shadow:0 0 8px var(--lime);
+}
+@keyframes scan-anim{0%{top:-2px;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
+.build-bar-wrap{width:100%;height:3px;background:rgba(245,239,224,.06);margin-bottom:6px}
+.build-bar{height:100%;background:var(--lime);width:0%;transition:width .4s ease}
+.build-pct{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--lime);text-align:right;margin-bottom:18px}
+.bstep{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;color:rgba(245,239,224,.3);transition:color .3s}
+.bstep.done{color:var(--cream)}
+.bstep.run{color:var(--lime)}
+.bstep-ico{font-size:14px;width:20px}
+.spinner{width:13px;height:13px;border-radius:50%;border:2px solid rgba(202,255,51,.15);border-top-color:var(--lime);animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bstep-check{color:var(--lime);font-size:12px}
+
+/* ─── DASHBOARD ──────────────────────────────────────── */
+.dash-section{display:none;padding:80px 48px;background:var(--mid);border-top:1px solid var(--border)}
+.dash-section.on{display:block}
+.dash-inner{max-width:1200px;margin:0 auto}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px}
+.dash-gym-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:48px;text-transform:uppercase;letter-spacing:-.02em;line-height:1}
+.dash-live{display:flex;align-items:center;gap:8px;font-size:13px;color:#4ade80}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
+.dash-nav-tabs{display:flex;gap:2px;background:rgba(245,239,224,.04);border-radius:6px;padding:4px;border:1px solid var(--border);margin-bottom:32px;width:fit-content}
+.dtab{
+  padding:9px 20px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .2s;
+}
+.dtab.on{background:var(--lime);color:var(--ink)}
+.dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:2px;background:var(--border)}
+.kpi-box{background:var(--card);padding:24px}
+.kpi-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+.kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;line-height:1;letter-spacing:-.01em}
+.kpi-delta{font-size:12px;color:#4ade80;margin-top:4px}
+.kpi-delta.neg{color:var(--terra)}
+.dash-panels{display:grid;grid-template-columns:2fr 1fr;gap:2px;background:var(--border)}
+.dash-panel{background:var(--card);padding:28px}
+.dp-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:20px}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px}
+.bc-bar{flex:1;border-radius:2px 2px 0 0;min-height:4px;cursor:default;transition:opacity .2s}
+.bc-bar:hover{opacity:.7}
+.bc-lbls{display:flex;margin-top:6px}
+.bc-lbl{flex:1;text-align:center;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.alert-row{padding:12px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start}
+.alert-row:last-child{border-bottom:none}
+.alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.alert-title{font-size:13px;font-weight:500}
+.alert-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.member-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.member-row:last-child{border-bottom:none}
+.m-avi{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;flex-shrink:0}
+.m-info{flex:1}
+.m-name{font-size:13px;font-weight:500}
+.m-plan{font-size:11px;color:var(--muted)}
+.m-tag{font-size:10px;padding:2px 10px;border-radius:100px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.t-active{background:rgba(74,222,128,.1);color:#4ade80}
+.t-new{background:rgba(202,255,51,.1);color:var(--lime)}
+.t-exp{background:rgba(232,85,42,.1);color:var(--terra)}
+/* Transfer tab */
+.transfer-rows{display:flex;flex-direction:column;gap:10px}
+.tr-row{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(245,239,224,.03);border:1px solid var(--border);
+  border-radius:8px;padding:12px 14px;
+}
+.tr-arrow{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px}
+.tr-arrow.in{color:var(--lime)}
+.tr-arrow.out{color:var(--terra)}
+.tr-name{font-size:13px;font-weight:500;flex:1}
+.tr-gym{font-size:11px;color:var(--muted)}
+.tr-date{font-size:11px;color:var(--muted)}
+/* Join code tab */
+.jc-tab-inner{display:flex;flex-direction:column;gap:16px;max-width:420px}
+.jc-big-code{
+  background:rgba(202,255,51,.06);border:1px solid rgba(202,255,51,.2);
+  border-radius:10px;padding:32px;text-align:center;
+}
+.jc-big-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+.jc-big-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:64px;letter-spacing:.3em;color:var(--lime);line-height:1}
+.jc-big-sub{font-size:12px;color:var(--muted);margin-top:8px}
+.jc-actions{display:flex;gap:8px}
+.jc-action-btn{flex:1;padding:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;border-radius:4px}
+.jc-ab-lime{background:var(--lime);color:var(--ink)}
+.jc-ab-out{background:transparent;color:var(--cream);border:1px solid rgba(245,239,224,.2)}
+.jc-ab-out:hover{border-color:var(--cream)}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+footer{
+  border-top:1px solid var(--border);padding:40px 48px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+}
+.foot-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;letter-spacing:.02em}
+.foot-logo em{color:var(--lime);font-style:normal}
+footer p{font-size:13px;color:var(--muted)}
+.foot-links{display:flex;gap:24px}
+.foot-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.foot-links a:hover{color:var(--cream)}
+
+/* ─── REVEAL ─────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(32px);transition:all .7s cubic-bezier(.22,1,.36,1)}
+.reveal.vis{opacity:1;transform:translateY(0)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-r" id="curR"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Am<em>ka</em></div>
+  <div class="nav-links">
+    <a href="#how">How It Works</a>
+    <a href="#nearby">Nearby Gyms</a>
+    <a href="#transfer">Transfers</a>
+    <a href="#pricing">Pricing</a>
+    <button class="nav-cta" onclick="document.getElementById('configure').scrollIntoView({behavior:'smooth'})">List Your Gym</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Nairobi's Gym Platform</div>
+    <h1>
+      <span class="block">Wake</span>
+      <span class="block lime">Up.</span>
+      <span class="block outline">Train.</span>
+      <span class="block terra">Repeat.</span>
+    </h1>
+    <div class="hero-rule"></div>
+    <p class="hero-sub">Amka is the fitness platform East African gyms plug into. Members download <strong>one app</strong>, find their gym by code or location, and get a fully personalized training and nutrition experience — with reminders that know exactly what to say.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('configure').scrollIntoView({behavior:'smooth'})">List Your Gym →</button>
+      <button class="btn-outline" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">How It Works</button>
+    </div>
+    <div class="hero-kpis">
+      <div class="kpi-item">
+        <div class="kpi-num">400<sup>+</sup></div>
+        <div class="kpi-lbl">Nairobi gyms</div>
+      </div>
+      <div class="kpi-item" style="padding-left:24px">
+        <div class="kpi-num">1<sup>app</sup></div>
+        <div class="kpi-lbl">One store listing</div>
+      </div>
+      <div class="kpi-item" style="padding-left:24px">
+        <div class="kpi-num" style="color:var(--lime)">KES<sup style="font-size:16px;color:var(--lime)"> 1.5k</sup></div>
+        <div class="kpi-lbl">Starting / month</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="big-phone">
+      <div class="bp-notch"></div>
+      <div class="bp-screen">
+        <div class="bp-hd">
+          <div class="bp-logo-row">
+            <div class="bp-logo-box">P</div>
+            <div class="bp-gname">PowerZone</div>
+          </div>
+          <div class="bp-avi">👤</div>
+        </div>
+        <div class="bp-card">
+          <div class="bp-card-lbl">Good morning, James 👋</div>
+          <div class="bp-card-title">Chest & Triceps</div>
+          <div class="bp-card-sub">Bench 62.5kg × 5 · Today · Week 3</div>
+        </div>
+        <div class="bp-stats">
+          <div class="bp-stat"><div class="bp-sn">12</div><div class="bp-sl">Sessions</div></div>
+          <div class="bp-stat"><div class="bp-sn" style="color:var(--cream)">3🔥</div><div class="bp-sl">Streak</div></div>
+          <div class="bp-stat"><div class="bp-sn" style="color:var(--cream)">87%</div><div class="bp-sl">Nutrition</div></div>
+        </div>
+        <div class="bp-section">
+          <div class="bp-stitle">Today's Program</div>
+          <div class="bp-ex">
+            <div class="bp-ex-ico">🏋️</div>
+            <div><div class="bp-ex-name">Bench Press</div><div class="bp-ex-sub">62.5kg × 5 sets × 5 reps</div></div>
+            <div class="bp-badge">+2.5kg</div>
+          </div>
+          <div class="bp-ex">
+            <div class="bp-ex-ico" style="background:rgba(245,239,224,.06)">💪</div>
+            <div><div class="bp-ex-name">Tricep Dips</div><div class="bp-ex-sub">BW × 3 × 12</div></div>
+          </div>
+        </div>
+        <div class="bp-nav">
+          <div class="bp-nav-i on"><div class="bp-nav-ico">🏠</div><div class="bp-dot"></div></div>
+          <div class="bp-nav-i"><div class="bp-nav-ico">🏋️</div><div class="bp-dot"></div></div>
+          <div class="bp-nav-i"><div class="bp-nav-ico">🥗</div><div class="bp-dot"></div></div>
+          <div class="bp-nav-i"><div class="bp-nav-ico">📈</div><div class="bp-dot"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <div class="ticker-item">One App</div><div class="ticker-item">All Nairobi Gyms</div><div class="ticker-item">Join by Code</div><div class="ticker-item">Auto Progression</div><div class="ticker-item">M-Pesa Billing</div><div class="ticker-item">Gym Transfers</div><div class="ticker-item">Nearby Discovery</div><div class="ticker-item">Daily Reminders</div><div class="ticker-item">Progress Tracking</div><div class="ticker-item">Class Booking</div>
+    <div class="ticker-item">One App</div><div class="ticker-item">All Nairobi Gyms</div><div class="ticker-item">Join by Code</div><div class="ticker-item">Auto Progression</div><div class="ticker-item">M-Pesa Billing</div><div class="ticker-item">Gym Transfers</div><div class="ticker-item">Nearby Discovery</div><div class="ticker-item">Daily Reminders</div><div class="ticker-item">Progress Tracking</div><div class="ticker-item">Class Booking</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section reveal" id="how">
+  <div class="section-inner">
+    <div class="eyebrow">How It Works</div>
+    <div class="display">Three steps.<br>Your gym is live.</div>
+    <div class="hiw-grid">
+      <div class="hiw-card">
+        <div class="hiw-num">01</div>
+        <span class="hiw-icon">🏢</span>
+        <div class="hiw-title">List on Amka</div>
+        <p class="hiw-desc">Configure your gym name, logo, and brand colours. We create your space on the platform and generate a unique 6-character join code — your gym's fingerprint on Amka.</p>
+      </div>
+      <div class="hiw-card">
+        <div class="hiw-num">02</div>
+        <span class="hiw-icon">📲</span>
+        <div class="hiw-title">Members Download</div>
+        <p class="hiw-desc">Share your join code — print it, WhatsApp it, stick it on the wall. Members download Amka once from the Play Store, enter your code, and the entire app themes to your gym instantly.</p>
+      </div>
+      <div class="hiw-card">
+        <div class="hiw-num">03</div>
+        <span class="hiw-icon">🚀</span>
+        <div class="hiw-title">Amka Does the Rest</div>
+        <p class="hiw-desc">Members get auto-personalized training programs, context-aware daily reminders, nutrition tracking, and progress analytics. You get a dashboard, M-Pesa billing, and retention alerts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN CODE SPOTLIGHT -->
+<section class="jc-section reveal" id="joincode">
+  <div class="jc-inner">
+    <div class="jc-left">
+      <div class="eyebrow" style="color:rgba(245,239,224,.7)">For Members</div>
+      <div class="display" style="color:#fff">Your gym<br>gave you<br>a code.</div>
+      <p>Enter it in Amka. The app re-themes to your gym in seconds. No waiting for app store approvals. No separate downloads. One app. Every gym.</p>
+    </div>
+    <div class="jc-right">
+      <div class="jc-step">
+        <div class="jc-step-num">1</div>
+        <div><div class="jc-step-title">Download Amka once</div><div class="jc-step-desc">One app on the Play Store and App Store. Free to download for every member.</div></div>
+      </div>
+      <div class="jc-step">
+        <div class="jc-step-num">2</div>
+        <div><div class="jc-step-title">Enter your gym's code or scan QR</div><div class="jc-step-desc">A 6-character code from your gym, or scan the QR code on the notice board.</div></div>
+      </div>
+      <div class="jc-step">
+        <div class="jc-step-num">3</div>
+        <div><div class="jc-step-title">App themes to your gym instantly</div><div class="jc-step-desc">Colors, logo, and gym name fill the app. Feels like your gym built it themselves.</div></div>
+      </div>
+      <div class="jc-code-demo">
+        <div class="jc-code-label">Example join code</div>
+        <div class="jc-code">PWR001</div>
+        <div class="jc-code-sub">6 characters · Uppercase · Given by your gym</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEARBY GYMS -->
+<section class="nearby-section reveal" id="nearby">
+  <div class="nearby-inner">
+    <div>
+      <div class="eyebrow">Gym Discovery</div>
+      <div class="display">No code?<br>Find gyms<br>near you.</div>
+      <p class="body-text" style="margin-top:16px">Don't have a join code yet? Open Amka and tap "Find gyms near me." We show every Amka gym sorted by walking distance — <strong style="color:var(--cream)">distance is always first</strong>, never paid placement.</p>
+      <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)"><span style="color:var(--lime);font-size:18px">📍</span> Sort by distance — closest gym always first</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)"><span style="color:var(--lime);font-size:18px">🏘</span> Filter by Nairobi neighborhood — no GPS needed</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)"><span style="color:var(--lime);font-size:18px">🔍</span> Text search by gym name or area</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)"><span style="color:var(--lime);font-size:18px">📷</span> Scan QR code at the gym entrance</div>
+      </div>
+    </div>
+    <div class="nearby-map">
+      <div class="map-mock">
+        <!-- Fake map pins -->
+        <div class="map-pin" style="top:28%;left:42%">
+          <div class="map-pin-dot" style="background:var(--lime)"><span>🏋️</span></div>
+          <div class="map-pin-label">PowerZone · 340m</div>
+        </div>
+        <div class="map-pin" style="top:45%;left:65%">
+          <div class="map-pin-dot" style="background:#00d4aa"><span>💪</span></div>
+          <div class="map-pin-label">IronHouse · 1.2km</div>
+        </div>
+        <div class="map-pin" style="top:35%;left:22%">
+          <div class="map-pin-dot" style="background:var(--terra)"><span>🧘</span></div>
+          <div class="map-pin-label">ZenFit · 1.8km</div>
+        </div>
+        <div class="map-pin" style="top:62%;left:30%">
+          <div class="map-pin-dot" style="background:#a78bfa"><span>🥊</span></div>
+          <div class="map-pin-label">BoxBase · 2.3km</div>
+        </div>
+        <!-- User location -->
+        <div class="map-user-pin">
+          <div class="user-dot"></div>
+        </div>
+      </div>
+      <div class="nearby-list">
+        <div class="nearby-item">
+          <div class="ni-color" style="background:var(--lime)"></div>
+          <div class="ni-info"><div class="ni-name">PowerZone Nairobi</div><div class="ni-loc">Westlands · 87 active members</div></div>
+          <div class="ni-dist">340m</div>
+        </div>
+        <div class="nearby-item">
+          <div class="ni-color" style="background:#00d4aa"></div>
+          <div class="ni-info"><div class="ni-name">IronHouse</div><div class="ni-loc">Parklands · 142 active members</div></div>
+          <div class="ni-dist">1.2km</div>
+        </div>
+        <div class="nearby-item">
+          <div class="ni-color" style="background:var(--terra)"></div>
+          <div class="ni-info"><div class="ni-name">ZenFit Kilimani</div><div class="ni-loc">Kilimani · 54 active members</div></div>
+          <div class="ni-dist">1.8km</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GYM TRANSFERS -->
+<section class="transfer-section reveal" id="transfer">
+  <div class="transfer-inner">
+    <div class="eyebrow">Gym Transfers</div>
+    <div class="display">Moved house?<br>Switch gyms.<br>Keep everything.</div>
+    <div class="transfer-grid">
+      <div class="transfer-left">
+        <p class="body-text">Your fitness history belongs to you — not your gym. Transfer to any Amka gym instantly and every workout log, weight entry, and nutrition diary comes with you.</p>
+        <div class="transfer-steps">
+          <div class="transfer-step">
+            <div class="ts-line"><div class="ts-circle">1</div><div class="ts-connector"></div></div>
+            <div class="ts-content">
+              <div class="ts-title">Find your new gym</div>
+              <div class="ts-desc">Search nearby, filter by neighborhood, or enter the join code your new gym gave you. Westlands to Kilimani — it's all on Amka.</div>
+            </div>
+          </div>
+          <div class="transfer-step">
+            <div class="ts-line"><div class="ts-circle">2</div><div class="ts-connector"></div></div>
+            <div class="ts-content">
+              <div class="ts-title">Tap Transfer</div>
+              <div class="ts-desc">One tap in Settings → Change Gym. No forms, no waiting for approval, no cancellation calls. Instant self-service. <span class="ts-tag">Max 3 transfers / 30 days</span></div>
+            </div>
+          </div>
+          <div class="transfer-step">
+            <div class="ts-line"><div class="ts-circle">3</div></div>
+            <div class="ts-content">
+              <div class="ts-title">App re-themes. History intact.</div>
+              <div class="ts-desc">The app immediately themes to your new gym's colours and logo. All your workout logs, weight history, and nutrition data are fully preserved.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="transfer-visual">
+        <div class="transfer-phones">
+          <!-- Phone A: PowerZone -->
+          <div class="t-phone t-phone-a">
+            <div class="t-ph-screen">
+              <div class="t-ph-hd" style="background:#1a1a2e;padding:18px 10px 8px;display:flex;align-items:center;gap:6px">
+                <div class="t-ph-logo" style="background:#ff5500;color:#fff">P</div>
+                <div class="t-ph-name">PowerZone</div>
+              </div>
+              <div class="t-ph-card" style="background:#ff5500;margin:0 8px;border-radius:8px;padding:10px;color:#fff">
+                <div class="t-ph-card-lbl" style="font-size:7px;opacity:.6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Week 8 · Day 3</div>
+                <div class="t-ph-card-title" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase">Leg Day</div>
+              </div>
+              <div class="t-ph-stats">
+                <div class="t-ph-stat"><div class="t-ph-sn" style="color:#ff5500">47</div><div class="t-ph-sl" style="font-size:6px;color:rgba(245,239,224,.3)">Sessions</div></div>
+                <div class="t-ph-stat"><div class="t-ph-sn" style="color:var(--cream)">-3kg</div><div class="t-ph-sl" style="font-size:6px;color:rgba(245,239,224,.3)">Progress</div></div>
+              </div>
+              <div class="t-ph-nav">
+                <div class="t-ph-ni on">🏠</div><div class="t-ph-ni">🏋️</div><div class="t-ph-ni">🥗</div><div class="t-ph-ni">📈</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="transfer-arrow">→</div>
+
+          <!-- Phone B: IronHouse -->
+          <div class="t-phone t-phone-b">
+            <div class="t-ph-screen">
+              <div class="t-ph-hd" style="background:#0a1628;padding:18px 10px 8px;display:flex;align-items:center;gap:6px">
+                <div class="t-ph-logo" style="background:#00d4aa;color:#fff">I</div>
+                <div class="t-ph-name" style="color:#00d4aa">IronHouse</div>
+              </div>
+              <div class="t-ph-card" style="background:#00d4aa;margin:0 8px;border-radius:8px;padding:10px;color:#0a1628">
+                <div class="t-ph-card-lbl" style="font-size:7px;opacity:.6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Week 8 · Day 3</div>
+                <div class="t-ph-card-title" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase">Leg Day</div>
+              </div>
+              <div class="t-ph-stats">
+                <div class="t-ph-stat"><div class="t-ph-sn" style="color:#00d4aa">47</div><div class="t-ph-sl" style="font-size:6px;color:rgba(245,239,224,.3)">Sessions</div></div>
+                <div class="t-ph-stat"><div class="t-ph-sn" style="color:var(--cream)">-3kg</div><div class="t-ph-sl" style="font-size:6px;color:rgba(245,239,224,.3)">Progress</div></div>
+              </div>
+              <div class="t-ph-nav">
+                <div class="t-ph-ni on">🏠</div><div class="t-ph-ni">🏋️</div><div class="t-ph-ni">🥗</div><div class="t-ph-ni">📈</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-preserved">
+          <div class="hp-icon">🔒</div>
+          <div>
+            <div class="hp-title">History always preserved</div>
+            <div class="hp-desc">47 sessions, 8 weeks of weight entries, nutrition logs — all yours. Transfers only change your gym. Never your data.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section reveal" id="features">
+  <div class="features-inner">
+    <div class="eyebrow">Features</div>
+    <div class="display">Everything needed.<br>Nothing extra.</div>
+    <div class="feat-tabs">
+      <button class="feat-tab on" onclick="switchFeat(this,'gym')">For Gym Owners</button>
+      <button class="feat-tab" onclick="switchFeat(this,'member')">For Members</button>
+    </div>
+    <div class="features-grid" id="feat-gym">
+      <div class="feat-card"><span class="feat-icon">📊</span><div class="feat-title">Retention Dashboard</div><p class="feat-desc">See which members are going inactive before they cancel. Automatic alerts when a member hasn't trained in 10+ days — before they ghost you.</p><span class="feat-tag">Growth & Pro</span></div>
+      <div class="feat-card"><span class="feat-icon">📍</span><div class="feat-title">Gym Discovery Listing</div><p class="feat-desc">Your gym appears in Amka's proximity search. Members who don't have your code yet can find you by location, neighborhood, or name.</p><span class="feat-tag">All plans</span></div>
+      <div class="feat-card"><span class="feat-icon">📲</span><div class="feat-title">M-Pesa Membership Billing</div><p class="feat-desc">Members pay renewals in-app via STK push. Automatic reconciliation. No manual M-Pesa checking, no chasing payments on WhatsApp.</p><span class="feat-tag">All plans</span></div>
+      <div class="feat-card"><span class="feat-icon">📈</span><div class="feat-title">Benchmark Reports</div><p class="feat-desc">See how your retention, sessions/member, and churn compare to the Amka platform average across all Nairobi gyms. Know where you stand.</p><span class="feat-tag">Pro only</span></div>
+      <div class="feat-card"><span class="feat-icon">🔄</span><div class="feat-title">Transfer Intelligence</div><p class="feat-desc">See which gyms you're winning members from and which you're losing to. Inbound and outbound transfers shown in your dashboard — a real competitive signal.</p><span class="feat-tag">All plans</span></div>
+      <div class="feat-card"><span class="feat-icon">🎨</span><div class="feat-title">Deep Gym Theming</div><p class="feat-desc">Your logo, primary colour, and name fill the entire app for your members. Feels like your gym built a custom app — without any of the cost or wait.</p><span class="feat-tag">All plans</span></div>
+    </div>
+    <div class="features-grid" id="feat-member" style="display:none">
+      <div class="feat-card"><span class="feat-icon">🏋️</span><div class="feat-title">Auto-Progression Programs</div><p class="feat-desc">Smart training plans that automatically increase weights when you hit your targets. Bench 60kg this week → 62.5kg next. No trainer needed.</p><span class="feat-tag">Powered by wger</span></div>
+      <div class="feat-card"><span class="feat-icon">🔔</span><div class="feat-title">Context-Aware Reminders</div><p class="feat-desc">"Today is Chest Day. Bench 62.5kg × 5 — up from 60kg last week." Not a generic ping. A reminder that knows exactly what you're doing today.</p><span class="feat-tag">Daily at your time</span></div>
+      <div class="feat-card"><span class="feat-icon">🥗</span><div class="feat-title">Smart Nutrition Tracking</div><p class="feat-desc">Log meals, track macros. Reminders only fire when you're actually behind — no nagging when you're on track. Afternoon nudge if you've barely eaten.</p><span class="feat-tag">Growth & Pro</span></div>
+      <div class="feat-card"><span class="feat-icon">📉</span><div class="feat-title">Weekly Progress Summaries</div><p class="feat-desc">Every Sunday: your weight trend, strength gains by exercise, session consistency %. Watch your progress compound over months.</p><span class="feat-tag">All plans</span></div>
+      <div class="feat-card"><span class="feat-icon">🔄</span><div class="feat-title">Free Gym Transfers</div><p class="feat-desc">Moved? Changed schedule? Switch to any Amka gym in seconds. Every workout log, weight entry, and nutrition diary comes with you. Zero data loss.</p><span class="feat-tag">3 per 30 days</span></div>
+      <div class="feat-card"><span class="feat-icon">🗓</span><div class="feat-title">Class Booking</div><p class="feat-desc">See your gym's class schedule, book your spot, get reminders. Zumba, CrossFit, yoga — whatever your gym runs, you can book it in Amka.</p><span class="feat-tag">Growth & Pro</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section reveal" id="pricing">
+  <div class="pricing-inner">
+    <div class="eyebrow">Pricing</div>
+    <div class="display">Start free.<br>Pay as you grow.</div>
+    <p class="body-text" style="margin-top:12px">All plans include 3 months free. M-Pesa billing built in. Cancel any time. Enterprise white-label available on request.</p>
+    <div class="pricing-grid">
+      <div class="pc">
+        <div class="pc-tier">Starter</div>
+        <div class="pc-price">KES 1,500 <span>/mo</span></div>
+        <div class="pc-members">Up to 15 active members</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-feats">
+          <li>Listed on Amka discovery</li>
+          <li>Gym branding & theming</li>
+          <li>6-char join code + QR</li>
+          <li>Workout tracking</li>
+          <li>Daily push reminders</li>
+          <li>M-Pesa billing</li>
+          <li>Transfer visibility</li>
+        </ul>
+        <button class="pc-btn pc-btn-out" onclick="openCfg('starter','1500')">Get Started</button>
+      </div>
+      <div class="pc hot">
+        <div class="pc-tier">Growth</div>
+        <div class="pc-price" style="color:var(--ink)">KES 8,000 <span style="color:rgba(13,12,10,.5)">/mo</span></div>
+        <div class="pc-members" style="color:rgba(13,12,10,.6)">Up to 150 active members</div>
+        <div class="pc-divider" style="background:rgba(13,12,10,.15)"></div>
+        <ul class="pc-feats">
+          <li>Everything in Starter</li>
+          <li>Trainer accounts & alerts</li>
+          <li>Class scheduling & booking</li>
+          <li>Nutrition reminders</li>
+          <li>Retention dashboard</li>
+          <li>Weekly progress reports</li>
+          <li>Inbound transfer reports</li>
+        </ul>
+        <button class="pc-btn pc-btn-dark" onclick="openCfg('growth','8000')">Get Started</button>
+      </div>
+      <div class="pc">
+        <div class="pc-tier">Pro</div>
+        <div class="pc-price">KES 15,000 <span>/mo</span></div>
+        <div class="pc-members">Up to 400 active members</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-feats">
+          <li>Everything in Growth</li>
+          <li>SMS & WhatsApp reminders</li>
+          <li>Priority discovery placement</li>
+          <li>Benchmark reports</li>
+          <li>Custom onboarding flow</li>
+          <li>Multi-location management</li>
+          <li>Priority support (24h)</li>
+        </ul>
+        <button class="pc-btn pc-btn-out" onclick="openCfg('pro','15000')">Get Started</button>
+      </div>
+      <div class="pc" style="border-left:2px solid var(--terra)">
+        <div class="pc-tier" style="color:var(--terra)">Enterprise</div>
+        <div class="pc-price">Custom</div>
+        <div class="pc-members">Unlimited · White-label</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-feats">
+          <li>Own app store listing</li>
+          <li>White-label Flutter build</li>
+          <li>Custom domain</li>
+          <li>Dedicated infrastructure</li>
+          <li>API access</li>
+          <li>SLA + dedicated support</li>
+        </ul>
+        <button class="pc-btn pc-btn-out" style="border-color:rgba(232,85,42,.3);color:var(--terra)" onclick="alert('Email hello@amka.app for Enterprise.')">Contact Us</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONFIGURATOR -->
+<section class="config-section reveal" id="configure">
+  <div class="config-inner">
+    <div class="eyebrow">Get Started</div>
+    <div class="display">Configure your gym.<br>See it live now.</div>
+    <p class="body-text" style="margin-top:12px">Watch your gym's branding appear on the phone preview in real time. Pay nothing today — 3 months free.</p>
+    <div class="config-layout">
+      <div class="config-panels">
+        <!-- Plan -->
+        <div class="config-panel">
+          <div class="cp-title"><span class="cp-num">01</span> Choose Your Plan</div>
+          <div class="plan-grid" id="planGrid">
+            <div class="plan-row on" data-plan="starter" data-price="1500" onclick="selPlan(this)">
+              <div><div class="pr-name">Starter</div><div class="pr-sub">Up to 15 members</div><div class="pr-chips"><span class="pr-chip">Branded App</span><span class="pr-chip">Reminders</span><span class="pr-chip">M-Pesa</span></div></div>
+              <div class="pr-price">KES 1,500<small>/month</small></div>
+            </div>
+            <div class="plan-row" data-plan="growth" data-price="8000" onclick="selPlan(this)">
+              <div><div class="pr-name">Growth <span class="pop">Popular</span></div><div class="pr-sub">Up to 150 members</div><div class="pr-chips"><span class="pr-chip">Trainers</span><span class="pr-chip">Classes</span><span class="pr-chip">Analytics</span></div></div>
+              <div class="pr-price">KES 8,000<small>/month</small></div>
+            </div>
+            <div class="plan-row" data-plan="pro" data-price="15000" onclick="selPlan(this)">
+              <div><div class="pr-name">Pro</div><div class="pr-sub">Up to 400 members</div><div class="pr-chips"><span class="pr-chip">SMS/WhatsApp</span><span class="pr-chip">Benchmarks</span></div></div>
+              <div class="pr-price">KES 15,000<small>/month</small></div>
+            </div>
+          </div>
+        </div>
+        <!-- Branding -->
+        <div class="config-panel">
+          <div class="cp-title"><span class="cp-num">02</span> Brand Your Gym</div>
+          <div class="branding-fields">
+            <div><label class="field-label">Gym Name</label><input class="field-input" type="text" id="gymName" placeholder="e.g. PowerZone Nairobi" oninput="livePreview()"></div>
+            <div><label class="field-label">Location</label><input class="field-input" type="text" id="gymLoc" placeholder="e.g. Westlands, Nairobi" oninput="livePreview()"></div>
+            <div class="logo-drop" onclick="document.getElementById('logoF').click()">
+              <input type="file" id="logoF" style="display:none" accept="image/*" onchange="loadLogo(event)">
+              <div class="ld-icon" id="ldIcon">🏢</div>
+              <div class="ld-text"><strong>Upload logo</strong> — shown in app header + discovery</div>
+            </div>
+            <div class="color-pair">
+              <div class="color-field">
+                <label class="field-label">Primary</label>
+                <div class="color-row"><input type="color" id="priCol" value="#CAFF33" oninput="syncT('pri')"><input type="text" id="priTxt" value="#CAFF33" oninput="syncP('pri')"></div>
+              </div>
+              <div class="color-field">
+                <label class="field-label">Secondary</label>
+                <div class="color-row"><input type="color" id="secCol" value="#0D0C0A" oninput="syncT('sec')"><input type="text" id="secTxt" value="#0D0C0A" oninput="syncP('sec')"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE PREVIEW -->
+      <div class="config-preview">
+        <div class="cp-label">Live Preview</div>
+        <div class="preview-phone" id="prevPhone">
+          <div class="pp-notch"></div>
+          <div class="pp-screen">
+            <div class="bp-hd" id="pvHd" style="background:#0D0C0A">
+              <div class="bp-logo-row">
+                <div class="bp-logo-box" id="pvLogo" style="background:#CAFF33;color:#0D0C0A">P</div>
+                <div class="bp-gname" id="pvName">PowerZone</div>
+              </div>
+              <div class="bp-avi">👤</div>
+            </div>
+            <div class="bp-card" id="pvCard" style="background:#CAFF33;color:#0D0C0A">
+              <div class="bp-card-lbl">Good morning 👋</div>
+              <div class="bp-card-title">Chest & Triceps</div>
+              <div class="bp-card-sub">Bench 62.5kg · Today</div>
+            </div>
+            <div class="bp-stats">
+              <div class="bp-stat"><div class="bp-sn" id="pvStat" style="color:#CAFF33">12</div><div class="bp-sl">Sessions</div></div>
+              <div class="bp-stat"><div class="bp-sn" style="color:var(--cream)">3🔥</div><div class="bp-sl">Streak</div></div>
+              <div class="bp-stat"><div class="bp-sn" style="color:var(--cream)">87%</div><div class="bp-sl">Nutrition</div></div>
+            </div>
+            <div class="bp-section">
+              <div class="bp-stitle">Today's Program</div>
+              <div class="bp-ex">
+                <div class="bp-ex-ico" id="pvExIco" style="background:rgba(202,255,51,.12)">🏋️</div>
+                <div><div class="bp-ex-name">Bench Press</div><div class="bp-ex-sub">62.5kg × 5 × 5</div></div>
+                <div class="bp-badge" id="pvBadge" style="background:rgba(202,255,51,.15);color:#CAFF33">+2.5kg</div>
+              </div>
+            </div>
+            <div class="bp-nav">
+              <div class="bp-nav-i on"><div class="bp-nav-ico">🏠</div><div class="bp-dot" id="pvDot" style="background:#CAFF33"></div></div>
+              <div class="bp-nav-i"><div class="bp-nav-ico">🏋️</div></div>
+              <div class="bp-nav-i"><div class="bp-nav-ico">🥗</div></div>
+              <div class="bp-nav-i"><div class="bp-nav-ico">📈</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.04em" id="pvAppName">PowerZone</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px" id="pvSlug">amka.app/powerzone-nairobi</div>
+        </div>
+        <div class="join-code-box">
+          <div class="jcb-label">Your join code</div>
+          <div class="jcb-code" id="pvCode">PWR001</div>
+        </div>
+        <button class="launch-btn" onclick="openModal()">List my gym on Amka →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div id="modalForm">
+      <div class="modal-hd">
+        <div class="modal-title">Complete listing</div>
+        <button class="modal-x" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="order-box">
+          <div class="order-row"><span>Plan — <span id="ordPlan">Starter</span></span><span id="ordPrice">KES 1,500/mo</span></div>
+          <div class="order-row"><span>Setup</span><span>Free</span></div>
+          <div class="order-row"><span>First 3 months</span><span style="color:#4ade80">Free trial</span></div>
+          <div class="order-row"><span>Total today</span><span>KES 0</span></div>
+        </div>
+        <div class="pay-methods">
+          <div class="pm on" onclick="selPay(this)"><span class="pm-icon">📱</span>M-Pesa</div>
+          <div class="pm" onclick="selPay(this)"><span class="pm-icon">💳</span>Card</div>
+          <div class="pm" onclick="selPay(this)"><span class="pm-icon">🏦</span>Bank</div>
+        </div>
+        <div class="m-field"><label>M-Pesa Phone Number</label><input class="m-input" type="tel" placeholder="0712 345 678" id="mpesaPhone"></div>
+        <div class="m-field"><label>Manager Email (for dashboard)</label><input class="m-input" type="email" placeholder="manager@yourgym.com"></div>
+        <button class="go-btn" onclick="startBuild()">Start 3-Month Free Trial →</button>
+      </div>
+    </div>
+    <div class="build-wrap" id="buildWrap">
+      <div class="build-title" id="buildTitle">Setting up...</div>
+      <div class="build-sub">Takes about 30 seconds</div>
+      <div class="build-mini-phone"><div class="scan-line"></div></div>
+      <div class="build-bar-wrap"><div class="build-bar" id="buildBar"></div></div>
+      <div class="build-pct" id="buildPct">0%</div>
+      <div>
+        <div class="bstep" id="bs1"><span class="bstep-ico">🎨</span>Applying your branding<span></span></div>
+        <div class="bstep" id="bs2"><span class="bstep-ico">🔑</span>Generating join code & QR<span></span></div>
+        <div class="bstep" id="bs3"><span class="bstep-ico">📍</span>Registering gym location<span></span></div>
+        <div class="bstep" id="bs4"><span class="bstep-ico">🏋️</span>Setting up training engine<span></span></div>
+        <div class="bstep" id="bs5"><span class="bstep-ico">🔔</span>Configuring reminders<span></span></div>
+        <div class="bstep" id="bs6"><span class="bstep-ico">📲</span>Registering M-Pesa<span></span></div>
+        <div class="bstep" id="bs7"><span class="bstep-ico">✅</span>Gym live on Amka<span></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<section class="dash-section" id="dashSection">
+  <div class="dash-inner">
+    <div class="dash-header">
+      <div>
+        <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Your Dashboard</div>
+        <div class="dash-gym-name" id="dashName">PowerZone Nairobi</div>
+      </div>
+      <div class="dash-live"><div class="live-dot"></div>Live on Amka</div>
+    </div>
+    <div class="dash-nav-tabs">
+      <button class="dtab on" onclick="dTab(this,'overview')">Overview</button>
+      <button class="dtab" onclick="dTab(this,'members')">Members</button>
+      <button class="dtab" onclick="dTab(this,'transfers')">Transfers</button>
+      <button class="dtab" onclick="dTab(this,'joincode')">Join Code</button>
+    </div>
+
+    <!-- Overview -->
+    <div id="dt-overview">
+      <div class="dash-kpis">
+        <div class="kpi-box"><div class="kpi-lbl">Active Members</div><div class="kpi-val">87</div><div class="kpi-delta">↑ 12 this month</div></div>
+        <div class="kpi-box"><div class="kpi-lbl">Retention Rate</div><div class="kpi-val">84%</div><div class="kpi-delta">↑ 13pts vs platform avg (71%)</div></div>
+        <div class="kpi-box"><div class="kpi-lbl">App Opens Today</div><div class="kpi-val">43</div><div class="kpi-delta">↑ 49% open rate</div></div>
+        <div class="kpi-box"><div class="kpi-lbl">MRR (M-Pesa)</div><div class="kpi-val" style="font-size:28px">KES 261k</div><div class="kpi-delta">↑ KES 36k this month</div></div>
+      </div>
+      <div class="dash-panels">
+        <div class="dash-panel">
+          <div class="dp-title">Weekly Check-ins</div>
+          <div class="bar-chart">
+            <div class="bc-bar" style="height:45%;background:rgba(202,255,51,.25)"></div>
+            <div class="bc-bar" style="height:72%;background:rgba(202,255,51,.45)"></div>
+            <div class="bc-bar" style="height:55%;background:rgba(202,255,51,.32)"></div>
+            <div class="bc-bar" style="height:90%;background:var(--lime)"></div>
+            <div class="bc-bar" style="height:62%;background:rgba(202,255,51,.4)"></div>
+            <div class="bc-bar" style="height:38%;background:rgba(202,255,51,.2)"></div>
+            <div class="bc-bar" style="height:18%;background:rgba(202,255,51,.12)"></div>
+          </div>
+          <div class="bc-lbls"><div class="bc-lbl">M</div><div class="bc-lbl">T</div><div class="bc-lbl">W</div><div class="bc-lbl">T</div><div class="bc-lbl">F</div><div class="bc-lbl">S</div><div class="bc-lbl">S</div></div>
+        </div>
+        <div class="dash-panel">
+          <div class="dp-title">Alerts</div>
+          <div class="alert-row"><div class="alert-dot" style="background:var(--terra)"></div><div><div class="alert-title">5 members inactive 10+ days</div><div class="alert-sub">Auto-reminder sent this morning</div></div></div>
+          <div class="alert-row"><div class="alert-dot" style="background:#4ade80"></div><div><div class="alert-title">3 renewals today via M-Pesa</div><div class="alert-sub">KES 9,000 collected</div></div></div>
+          <div class="alert-row"><div class="alert-dot" style="background:var(--lime)"></div><div><div class="alert-title">2 members transferred in</div><div class="alert-sub">From IronHouse · This week</div></div></div>
+          <div class="alert-row"><div class="alert-dot" style="background:rgba(245,239,224,.3)"></div><div><div class="alert-title">You're above platform avg</div><div class="alert-sub">84% retention vs 71% Nairobi avg</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Members -->
+    <div id="dt-members" style="display:none">
+      <div class="dash-panel">
+        <div class="dp-title">Active Members</div>
+        <div class="member-row"><div class="m-avi" style="background:rgba(202,255,51,.12);color:var(--lime)">JM</div><div class="m-info"><div class="m-name">James Mutua</div><div class="m-plan">Growth · Joined Jan 2025</div></div><div class="m-tag t-active">Active</div></div>
+        <div class="member-row"><div class="m-avi" style="background:rgba(232,85,42,.12);color:var(--terra)">AW</div><div class="m-info"><div class="m-name">Amina Wanjiku</div><div class="m-plan">Starter · Joined Feb 2025</div></div><div class="m-tag t-new">New</div></div>
+        <div class="member-row"><div class="m-avi" style="background:rgba(245,239,224,.07);color:var(--cream)">BK</div><div class="m-info"><div class="m-name">Brian Kamau</div><div class="m-plan">Growth · Joined Nov 2024</div></div><div class="m-tag t-active">Active</div></div>
+        <div class="member-row"><div class="m-avi" style="background:rgba(232,85,42,.08);color:var(--terra)">FO</div><div class="m-info"><div class="m-name">Faith Odhiambo</div><div class="m-plan">Starter · Joined Oct 2024</div></div><div class="m-tag t-exp">Expired</div></div>
+        <div class="member-row"><div class="m-avi" style="background:rgba(202,255,51,.08);color:var(--lime)">DN</div><div class="m-info"><div class="m-name">David Njoroge</div><div class="m-plan">Pro · Joined Mar 2025</div></div><div class="m-tag t-new">New</div></div>
+      </div>
+    </div>
+
+    <!-- Transfers -->
+    <div id="dt-transfers" style="display:none">
+      <div class="dash-panel">
+        <div class="dp-title">Transfer Activity · Last 30 Days</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div style="background:rgba(202,255,51,.06);border:1px solid rgba(202,255,51,.15);border-radius:8px;padding:16px;text-align:center">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:var(--lime)">+7</div>
+            <div style="font-size:12px;color:var(--muted)">Members transferred in</div>
+          </div>
+          <div style="background:rgba(232,85,42,.06);border:1px solid rgba(232,85,42,.15);border-radius:8px;padding:16px;text-align:center">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:var(--terra)">-3</div>
+            <div style="font-size:12px;color:var(--muted)">Members transferred out</div>
+          </div>
+        </div>
+        <div class="transfer-rows">
+          <div class="tr-row"><div class="tr-arrow in">↓ IN</div><div><div class="tr-name">Amina Wanjiku</div><div class="tr-gym">From IronHouse Parklands</div></div><div class="tr-date">2 days ago</div></div>
+          <div class="tr-row"><div class="tr-arrow in">↓ IN</div><div><div class="tr-name">Kevin Oduya</div><div class="tr-gym">From FitBase Kilimani</div></div><div class="tr-date">5 days ago</div></div>
+          <div class="tr-row"><div class="tr-arrow out">↑ OUT</div><div><div class="tr-name">Grace Mwangi</div><div class="tr-gym">To ZenFit Karen</div></div><div class="tr-date">8 days ago</div></div>
+          <div class="tr-row"><div class="tr-arrow in">↓ IN</div><div><div class="tr-name">Peter Kimani</div><div class="tr-gym">From BoxBase CBD</div></div><div class="tr-date">12 days ago</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Join Code -->
+    <div id="dt-joincode" style="display:none">
+      <div class="jc-tab-inner">
+        <div class="jc-big-code">
+          <div class="jc-big-lbl">Your gym's join code</div>
+          <div class="jc-big-num" id="dashCode">PWR001</div>
+          <div class="jc-big-sub">Members enter this in Amka to join your gym · <a href="#" style="color:var(--lime)">amka.app/<span id="dashSlug">powerzone-nairobi</span></a></div>
+        </div>
+        <div class="jc-actions">
+          <button class="jc-action-btn jc-ab-lime" onclick="alert('QR downloaded!')">Download QR Code</button>
+          <button class="jc-action-btn jc-ab-out" onclick="alert('Link copied!')">Copy WhatsApp Link</button>
+        </div>
+        <div style="font-size:13px;color:var(--muted);padding:12px;background:rgba(245,239,224,.03);border:1px solid var(--border);border-radius:6px">
+          💡 Print your QR code and stick it at reception. Members scan → download Amka → they're in.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-logo">Am<em>ka</em></div>
+  <p>© 2025 Amka · Built for East African Gyms</p>
+  <div class="foot-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="mailto:hello@amka.app" style="color:var(--lime)">hello@amka.app</a>
+  </div>
+</footer>
+
+<script>
+// ─── CURSOR ─────────────────────────────────────
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(loop)})();
+
+// ─── STATE ──────────────────────────────────────
+let curPlan='starter',curPrice='1500';
+
+// ─── PLAN SELECT ────────────────────────────────
+function selPlan(el){
+  document.querySelectorAll('.plan-row').forEach(r=>r.classList.remove('on'));
+  el.classList.add('on');
+  curPlan=el.dataset.plan; curPrice=el.dataset.price;
+}
+
+function openCfg(plan,price){
+  curPlan=plan; curPrice=price;
+  document.querySelectorAll('.plan-row').forEach(r=>r.classList.toggle('on',r.dataset.plan===plan));
+  document.getElementById('configure').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── LIVE PREVIEW ───────────────────────────────
+function livePreview(){
+  const name=document.getElementById('gymName').value||'PowerZone';
+  const pri=document.getElementById('priCol').value;
+  const sec=document.getElementById('secCol').value;
+  const short=name.split(' ')[0];
+  const init=name.charAt(0).toUpperCase();
+  const slug=name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  const code=(name.replace(/[^a-zA-Z]/g,'').substr(0,3).toUpperCase()+'001').substr(0,6).padEnd(6,'0');
+
+  document.getElementById('pvHd').style.background=sec;
+  document.getElementById('pvLogo').style.background=pri;
+  document.getElementById('pvLogo').style.color=sec;
+  document.getElementById('pvLogo').textContent=init;
+  document.getElementById('pvName').textContent=short;
+  document.getElementById('pvCard').style.background=pri;
+  document.getElementById('pvCard').style.color=sec;
+  document.getElementById('pvStat').style.color=pri;
+  document.getElementById('pvExIco').style.background=pri+'22';
+  document.getElementById('pvBadge').style.background=pri+'20';
+  document.getElementById('pvBadge').style.color=pri;
+  document.getElementById('pvDot').style.background=pri;
+  document.getElementById('pvAppName').textContent=short;
+  document.getElementById('pvSlug').textContent='amka.app/'+slug;
+  document.getElementById('pvCode').textContent=code;
+}
+function syncT(t){const v=document.getElementById(t==='pri'?'priCol':'secCol').value;document.getElementById(t==='pri'?'priTxt':'secTxt').value=v;livePreview()}
+function syncP(t){const v=document.getElementById(t==='pri'?'priTxt':'secTxt').value;if(/^#[0-9a-fA-F]{6}$/.test(v)){document.getElementById(t==='pri'?'priCol':'secCol').value=v;livePreview()}}
+function loadLogo(e){if(e.target.files[0])document.getElementById('ldIcon').textContent='✅'}
+
+// ─── FEATURES TABS ──────────────────────────────
+function switchFeat(btn,type){
+  document.querySelectorAll('.feat-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('feat-gym').style.display=type==='gym'?'grid':'none';
+  document.getElementById('feat-member').style.display=type==='member'?'grid':'none';
+}
+
+// ─── MODAL ──────────────────────────────────────
+function openModal(){
+  const pn={starter:'Starter',growth:'Growth',pro:'Pro'};
+  document.getElementById('ordPlan').textContent=pn[curPlan];
+  document.getElementById('ordPrice').textContent='KES '+parseInt(curPrice).toLocaleString()+'/mo';
+  document.getElementById('overlay').classList.add('on');
+  document.getElementById('modalForm').style.display='block';
+  document.getElementById('buildWrap').classList.remove('on');
+}
+function closeModal(){document.getElementById('overlay').classList.remove('on')}
+function selPay(el){document.querySelectorAll('.pm').forEach(p=>p.classList.remove('on'));el.classList.add('on')}
+
+// ─── BUILD SIMULATION ───────────────────────────
+function startBuild(){
+  document.getElementById('modalForm').style.display='none';
+  document.getElementById('buildWrap').classList.add('on');
+  const name=document.getElementById('gymName').value||'PowerZone Nairobi';
+  document.getElementById('buildTitle').textContent='Building '+name+'...';
+
+  const steps=[
+    {id:'bs1',delay:0,dur:1600},
+    {id:'bs2',delay:1800,dur:1200},
+    {id:'bs3',delay:3200,dur:1000},
+    {id:'bs4',delay:4400,dur:2200},
+    {id:'bs5',delay:6800,dur:1500},
+    {id:'bs6',delay:8500,dur:1400},
+    {id:'bs7',delay:10100,dur:900},
+  ];
+
+  let p=0;
+  const iv=setInterval(()=>{if(p>=100){clearInterval(iv);return}p+=0.85;const pp=Math.min(p,100);document.getElementById('buildBar').style.width=pp+'%';document.getElementById('buildPct').textContent=Math.floor(pp)+'%'},80);
+
+  steps.forEach((s,i)=>{
+    setTimeout(()=>{
+      const el=document.getElementById(s.id);
+      el.classList.add('run');
+      const sp=el.querySelector('span:last-child');
+      const spin=document.createElement('div');spin.className='spinner';sp.appendChild(spin);
+      setTimeout(()=>{
+        el.classList.remove('run');el.classList.add('done');
+        sp.innerHTML='<span class="bstep-check">✓</span>';
+        if(i===steps.length-1)setTimeout(finishBuild,600);
+      },s.dur);
+    },s.delay);
+  });
+}
+
+function finishBuild(){
+  const name=document.getElementById('gymName').value||'PowerZone Nairobi';
+  const phone=document.getElementById('mpesaPhone').value||'0712 345 678';
+  const pn={starter:'Starter',growth:'Growth',pro:'Pro'};
+  const slug=name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  const code=(name.replace(/[^a-zA-Z]/g,'').substr(0,3).toUpperCase()+'001').substr(0,6).padEnd(6,'0');
+
+  document.getElementById('buildTitle').textContent='🎉 You\'re live!';
+
+  setTimeout(()=>{
+    closeModal();
+    document.getElementById('dashName').textContent=name;
+    document.getElementById('dashCode').textContent=code;
+    document.getElementById('dashSlug').textContent=slug;
+    const ds=document.getElementById('dashSection');
+    ds.classList.add('on');
+    ds.scrollIntoView({behavior:'smooth'});
+  },1200);
+}
+
+// ─── DASHBOARD TABS ─────────────────────────────
+function dTab(btn,tab){
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  ['overview','members','transfers','joincode'].forEach(t=>{
+    const el=document.getElementById('dt-'+t);
+    if(el)el.style.display=t===tab?'block':'none';
+  });
+}
+
+// ─── SCROLL REVEAL ──────────────────────────────
+const ro=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+livePreview();
+</script>
+</body>
+</html>
