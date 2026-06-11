@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,25 @@ import { handleApiError } from "@/lib/api-error-handler";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 export default function InviteAcceptPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <InviteAcceptContent />
+    </Suspense>
+  );
+}
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-ink px-4">
+      <div className="text-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+        <p className="text-cream">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+function InviteAcceptContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token") || "";
