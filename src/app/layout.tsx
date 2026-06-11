@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Instrument_Sans } from "next/font/google";
+import { Providers } from "@/providers/query-client";
 import "./globals.css";
 
 const barlowCondensed = Barlow_Condensed({
@@ -35,7 +36,7 @@ export default function RootLayout({
       className={`${barlowCondensed.variable} ${instrumentSans.variable} antialiased`}
     >
       <body className="min-h-screen overflow-x-hidden cursor-none">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { BUILD_STEPS } from "@/lib/landing-data";
+import { handleApiError } from "@/lib/api-error-handler";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -9,16 +10,24 @@ interface CheckoutModalProps {
   plan: string;
   price: string;
   gymName: string;
+  adminEmail?: string;
+  adminName?: string;
   onComplete: () => void;
 }
 
 const PLAN_NAMES: Record<string, string> = { starter: "Starter", growth: "Growth", pro: "Pro" };
 
-export function CheckoutModal({ isOpen, onClose, plan, price, gymName, onComplete }: CheckoutModalProps) {
+export function CheckoutModal({ isOpen, onClose, plan, price, gymName, adminEmail, adminName, onComplete }: CheckoutModalProps) {
   const [showBuild, setShowBuild] = useState(false);
   const [buildPct, setBuildPct] = useState(0);
   const [activeStep, setActiveStep] = useState(-1);
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState(adminEmail || "");
+  const [name, setName] = useState(adminName || "");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -27,10 +36,16 @@ export function CheckoutModal({ isOpen, onClose, plan, price, gymName, onComplet
     setBuildPct(0);
     setActiveStep(-1);
     setCompletedSteps(new Set());
+    setPhone("");
+    setEmail(adminEmail || "");
+    setName(adminName || "");
+    setPassword("");
+    setError("");
+    setIsSubmitting(false);
     if (intervalRef.current) clearInterval(intervalRef.current);
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
-  }, []);
+  }, [adminEmail, adminName]);
 
   const handleClose = useCallback(() => {
     resetState();
@@ -71,6 +86,53 @@ export function CheckoutModal({ isOpen, onClose, plan, price, gymName, onComplet
     });
   }, [onComplete]);
 
+  const handleSubmit = useCallback(async () => {
+    setError("");
+
+    if (!email) {
+      setError("Manager email is required");
+      return;
+    }
+
+    if (!name) {
+      setError("Manager name is required");
+      return;
+    }
+
+    if (!password || password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          gymName,
+          adminEmail: email,
+          adminName: name,
+          adminPassword: password,
+          primaryColor: "#CAFF33",
+          secondaryColor: "#0D0C0A",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create gym");
+      }
+
+      startBuild();
+    } catch (err) {
+      setError(handleApiError(err));
+      setIsSubmitting(false);
+    }
+  }, [gymName, email, name, password, startBuild]);
+
   if (!isOpen) return null;
 
   return (
@@ -101,21 +163,63 @@ export function CheckoutModal({ isOpen, onClose, plan, price, gymName, onComplet
 
               <PaymentMethods />
 
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4 text-red-500 text-sm">
+                  {error}
+                </div>
+              )}
+
               <div className="mb-4">
                 <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">M-Pesa Phone Number</label>
-                <input type="tel" placeholder="0712 345 678" className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="0712 345 678"
+                  className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">Manager Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John Doe"
+                  required
+                  className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
+                />
               </div>
               <div className="mb-4">
                 <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">Manager Email (for dashboard)</label>
-                <input type="email" placeholder="manager@yourgym.com" className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="manager@yourgym.com"
+                  required
+                  className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Minimum 8 characters"
+                  required
+                  className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
+                />
               </div>
 
               <button
-                onClick={startBuild}
-                className="w-full bg-lime text-ink border-none py-4 font-heading font-extrabold text-[16px] tracking-[.08em] uppercase cursor-pointer transition-all duration-200 hover:bg-cream"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="w-full bg-lime text-ink border-none py-4 font-heading font-extrabold text-[16px] tracking-[.08em] uppercase cursor-pointer transition-all duration-200 hover:bg-cream disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ clipPath: "polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))" }}
               >
-                Start 3-Month Free Trial →
+                {isSubmitting ? "Creating..." : "Start 3-Month Free Trial →"}
               </button>
             </div>
           </>
