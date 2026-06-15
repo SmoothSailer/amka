@@ -1,9 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { PRICING_TIERS } from "@/lib/landing-data";
+import { usePricing } from "@/hooks/use-pricing";
 
 export function Pricing() {
+  const { data, isLoading } = usePricing();
+  const tiers = data?.tiers ?? [];
+
   return (
     <section id="pricing" className="bg-mid border-t border-[var(--border-color)] py-[100px] px-6 md:px-12">
       <div className="max-w-[1200px] mx-auto">
@@ -26,8 +29,24 @@ export function Pricing() {
           </p>
         </motion.div>
 
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-[2px] mt-14 border border-[var(--border-color)]">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-card p-8 px-6 animate-pulse">
+                <div className="h-3 w-16 bg-[rgba(245,239,224,.1)] rounded mb-3" />
+                <div className="h-10 w-28 bg-[rgba(245,239,224,.1)] rounded mb-1" />
+                <div className="h-3 w-20 bg-[rgba(245,239,224,.1)] rounded mb-6" />
+                <div className="h-px bg-[var(--border-color)] mb-5" />
+                {[1, 2, 3, 4, 5].map((j) => (
+                  <div key={j} className="h-3 w-full bg-[rgba(245,239,224,.08)] rounded mb-[9px]" />
+                ))}
+                <div className="h-11 w-full bg-[rgba(245,239,224,.1)] rounded mt-7" />
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-[2px] mt-14 border border-[var(--border-color)]">
-          {PRICING_TIERS.map((tier, i) => (
+          {tiers.map((tier, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 32 }}
@@ -79,6 +98,7 @@ export function Pricing() {
             </motion.div>
           ))}
         </div>
+      )}
       </div>
     </section>
   );

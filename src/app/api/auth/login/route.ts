@@ -44,5 +44,5 @@ export async function POST(request: Request) {
     }
   );
 
-  return NextResponse.json({ admin, tenant });
+  return NextResponse.json({ token, admin, tenant });
 }

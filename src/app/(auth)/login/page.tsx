@@ -35,6 +35,9 @@ export default function GymLoginPage() {
       }
 
       const { token, admin, tenant } = data as AdminLoginResponse;
+      if (!token) {
+        throw new Error("No token received from server");
+      }
       setAuthTokenClient(token, "gym");
       setGymDataClient({
         id: tenant.id,

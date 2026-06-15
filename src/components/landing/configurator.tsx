@@ -1,15 +1,42 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import { CONFIGURATOR_PLANS } from "@/lib/landing-data";
+import { usePricing } from "@/hooks/use-pricing";
+import type { PricingTier } from "@/types/api";
 import { generateJoinCode, generateSlug } from "@/lib/configurator-utils";
 
 interface ConfiguratorProps {
-  onOpenModal: (plan: string, price: string) => void;
+  onOpenModal: (plan: string, price: string, gymName: string, options: { location: string; primaryColor: string; secondaryColor: string }) => void;
+}
+
+function toPlanId(name: string): string {
+  return name.toLowerCase();
+}
+
+function toPlanSub(tier: PricingTier): string {
+  if (tier.enterprise) return "Unlimited members";
+  const match = tier.members.match(/Up to (\d+)/);
+  return match ? `Up to ${match[1]} members` : tier.members;
 }
 
 export function Configurator({ onOpenModal }: ConfiguratorProps) {
+  const { data, isLoading } = usePricing();
+  const plans = useMemo(() => {
+    if (!data?.tiers) return [];
+    return data.tiers
+      .filter((t) => !t.enterprise)
+      .map((tier) => ({
+        plan: toPlanId(tier.name),
+        name: tier.name,
+        sub: toPlanSub(tier),
+        price: tier.price,
+        priceNum: tier.priceNum,
+        chips: tier.chips,
+        popular: tier.hot,
+      }));
+  }, [data]);
+
   const [selectedPlan, setSelectedPlan] = useState("starter");
   const [gymName, setGymName] = useState("");
   const [gymLoc, setGymLoc] = useState("");
@@ -68,7 +95,9 @@ export function Configurator({ onOpenModal }: ConfiguratorProps) {
                 <span className="text-lime">01</span> Choose Your Plan
               </div>
               <div className="flex flex-col gap-2">
-                {CONFIGURATOR_PLANS.map((plan) => (
+                {isLoading ? (
+                  <div className="text-[13px] text-muted-color py-4">Loading plans...</div>
+                ) : plans.map((plan) => (
                   <div
                     key={plan.plan}
                     onClick={() => setSelectedPlan(plan.plan)}
@@ -251,7 +280,14 @@ export function Configurator({ onOpenModal }: ConfiguratorProps) {
             </div>
 
             <button
-              onClick={() => onOpenModal(selectedPlan, CONFIGURATOR_PLANS.find((p) => p.plan === selectedPlan)?.priceNum.toString() || "1500")}
+              onClick={() => {
+                const priceNum = plans.find((p) => p.plan === selectedPlan)?.priceNum?.toString() || "1500";
+                onOpenModal(selectedPlan, priceNum, gymName, {
+                  location: gymLoc,
+                  primaryColor: priCol,
+                  secondaryColor: secCol,
+                });
+              }}
               className="w-full bg-lime text-ink border-none py-[15px] font-heading font-extrabold text-[16px] tracking-[.08em] uppercase cursor-pointer transition-all duration-200 hover:bg-cream hover:-translate-y-px"
               style={{ clipPath: "polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))" }}
             >
