@@ -28,5 +28,5 @@ export async function POST(request: Request) {
     path: "/",
   });
 
-  return NextResponse.json({ admin });
+  return NextResponse.json({ token, admin });
 }

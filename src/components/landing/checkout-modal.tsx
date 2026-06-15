@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { BUILD_STEPS } from "@/lib/landing-data";
+import { useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { handleApiError } from "@/lib/api-error-handler";
+import { setAuthTokenClient, setGymDataClient } from "@/lib/auth-client";
+import { usePricing } from "@/hooks/use-pricing";
+import { Loader2 } from "lucide-react";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -10,81 +13,45 @@ interface CheckoutModalProps {
   plan: string;
   price: string;
   gymName: string;
-  adminEmail?: string;
-  adminName?: string;
-  onComplete: () => void;
+  gymLocation?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
 }
 
-const PLAN_NAMES: Record<string, string> = { starter: "Starter", growth: "Growth", pro: "Pro" };
+export function CheckoutModal({
+  isOpen, onClose, plan, price, gymName,
+  gymLocation, primaryColor, secondaryColor,
+}: CheckoutModalProps) {
+  const router = useRouter();
+  const { data } = usePricing();
+  const planName = useMemo(() => {
+    if (!data?.tiers) return plan.charAt(0).toUpperCase() + plan.slice(1);
+    const tier = data.tiers.find((t) => t.name.toLowerCase() === plan);
+    return tier?.name || plan.charAt(0).toUpperCase() + plan.slice(1);
+  }, [data, plan]);
 
-export function CheckoutModal({ isOpen, onClose, plan, price, gymName, adminEmail, adminName, onComplete }: CheckoutModalProps) {
-  const [showBuild, setShowBuild] = useState(false);
-  const [buildPct, setBuildPct] = useState(0);
-  const [activeStep, setActiveStep] = useState(-1);
-  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState(adminEmail || "");
-  const [name, setName] = useState(adminName || "");
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const resetState = useCallback(() => {
-    setShowBuild(false);
-    setBuildPct(0);
-    setActiveStep(-1);
-    setCompletedSteps(new Set());
     setPhone("");
-    setEmail(adminEmail || "");
-    setName(adminName || "");
+    setEmail("");
+    setName("");
     setPassword("");
     setError("");
     setIsSubmitting(false);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
-  }, [adminEmail, adminName]);
+    setIsRedirecting(false);
+  }, []);
 
   const handleClose = useCallback(() => {
     resetState();
     onClose();
   }, [resetState, onClose]);
-
-  const startBuild = useCallback(() => {
-    setShowBuild(true);
-
-    let p = 0;
-    intervalRef.current = setInterval(() => {
-      if (p >= 100) {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        return;
-      }
-      p += 0.85;
-      setBuildPct(Math.min(p, 100));
-    }, 80);
-
-    let cumulativeDelay = 0;
-    BUILD_STEPS.forEach((step, i) => {
-      const startTimeout = setTimeout(() => {
-        setActiveStep(i);
-        const doneTimeout = setTimeout(() => {
-          setActiveStep(-1);
-          setCompletedSteps((prev) => new Set(prev).add(step.id));
-          if (i === BUILD_STEPS.length - 1) {
-            const finishTimeout = setTimeout(() => {
-              onComplete();
-            }, 600);
-            timeoutsRef.current.push(finishTimeout);
-          }
-        }, step.dur);
-        timeoutsRef.current.push(doneTimeout);
-      }, cumulativeDelay);
-      timeoutsRef.current.push(startTimeout);
-      cumulativeDelay += step.dur + 200;
-    });
-  }, [onComplete]);
 
   const handleSubmit = useCallback(async () => {
     setError("");
@@ -107,159 +74,164 @@ export function CheckoutModal({ isOpen, onClose, plan, price, gymName, adminEmai
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/signup", {
+      const signupRes = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          gymName,
+          gymName: gymName || name,
           adminEmail: email,
           adminName: name,
           adminPassword: password,
-          primaryColor: "#CAFF33",
-          secondaryColor: "#0D0C0A",
+          primaryColor: primaryColor || "#CAFF33",
+          secondaryColor: secondaryColor || "#0D0C0A",
+          location: gymLocation || undefined,
         }),
       });
 
-      const data = await res.json();
+      const signupData = await signupRes.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to create gym");
+      if (!signupRes.ok) {
+        throw new Error(signupData.error || "Failed to create gym");
       }
 
-      startBuild();
+      const slug = signupData.tenant?.slug;
+      const tenantId = signupData.tenant?.id;
+      const gymDisplayName = signupData.tenant?.gymName || gymName;
+
+      if (!slug) {
+        throw new Error("Gym created but no slug returned");
+      }
+
+      setIsSubmitting(false);
+      setIsRedirecting(true);
+
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, slug }),
+      });
+
+      const loginData = await loginRes.json();
+
+      if (!loginRes.ok || !loginData.token) {
+        throw new Error(loginData.error || "Account created but login failed. Please log in manually.");
+      }
+
+      setAuthTokenClient(loginData.token, "gym");
+      setGymDataClient({
+        id: tenantId || "",
+        name: gymDisplayName,
+        slug,
+        primaryColor: primaryColor || "#CAFF33",
+      });
+
+      router.push("/dashboard");
     } catch (err) {
       setError(handleApiError(err));
       setIsSubmitting(false);
+      setIsRedirecting(false);
     }
-  }, [gymName, email, name, password, startBuild]);
+  }, [gymName, email, name, password, primaryColor, secondaryColor, gymLocation, router]);
 
   if (!isOpen) return null;
+
+  if (isRedirecting) {
+    return (
+      <div className="fixed inset-0 z-[200] bg-[rgba(13,12,10,.92)] backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="bg-card border border-[var(--border-color)] w-[460px] max-w-full p-8 text-center" style={{ animation: "mIn .3s ease" }}>
+          <Loader2 className="w-10 h-10 animate-spin text-lime mx-auto mb-4" />
+          <div className="font-heading font-black text-[24px] uppercase tracking-[.03em] mb-2">Setting up your dashboard</div>
+          <div className="text-[13px] text-muted-color">Redirecting you to your gym admin dashboard...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[200] bg-[rgba(13,12,10,.92)] backdrop-blur-xl flex items-center justify-center p-4">
       <div className="bg-card border border-[var(--border-color)] w-[460px] max-w-full max-h-[90vh] overflow-y-auto" style={{ animation: "mIn .3s ease" }}>
-        {!showBuild ? (
-          <>
-            <div className="p-7 pb-6 border-b border-[var(--border-color)] flex justify-between items-center">
-              <div className="font-heading font-extrabold text-[24px] uppercase tracking-[.03em]">Complete listing</div>
-              <button onClick={handleClose} className="bg-transparent border-none text-muted-color text-[20px] cursor-pointer transition-colors duration-200 hover:text-cream">✕</button>
+        <div className="p-7 pb-6 border-b border-[var(--border-color)] flex justify-between items-center">
+          <div className="font-heading font-extrabold text-[24px] uppercase tracking-[.03em]">Complete listing</div>
+          <button onClick={handleClose} className="bg-transparent border-none text-muted-color text-[20px] cursor-pointer transition-colors duration-200 hover:text-cream">✕</button>
+        </div>
+        <div className="p-7 pt-6">
+          <div className="bg-[rgba(202,255,51,.05)] border border-[rgba(202,255,51,.15)] rounded-lg p-4 mb-6">
+            <div className="flex justify-between text-[13px] mb-1.5 text-muted-color">
+              <span>Plan — {planName}</span>
+              <span>KES {parseInt(price).toLocaleString()}/mo</span>
             </div>
-            <div className="p-7 pt-6">
-              <div className="bg-[rgba(202,255,51,.05)] border border-[rgba(202,255,51,.15)] rounded-lg p-4 mb-6">
-                <div className="flex justify-between text-[13px] mb-1.5 text-muted-color">
-                  <span>Plan — {PLAN_NAMES[plan] || "Starter"}</span>
-                  <span>KES {parseInt(price).toLocaleString()}/mo</span>
-                </div>
-                <div className="flex justify-between text-[13px] mb-1.5 text-muted-color">
-                  <span>Setup</span><span>Free</span>
-                </div>
-                <div className="flex justify-between text-[13px] mb-1.5 text-muted-color">
-                  <span>First 3 months</span><span className="text-[#4ade80]">Free trial</span>
-                </div>
-                <div className="flex justify-between text-[14px] pt-2.5 border-t border-[rgba(202,255,51,.15)] font-semibold text-lime">
-                  <span>Total today</span><span>KES 0</span>
-                </div>
-              </div>
-
-              <PaymentMethods />
-
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4 text-red-500 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div className="mb-4">
-                <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">M-Pesa Phone Number</label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="0712 345 678"
-                  className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">Manager Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
-                  required
-                  className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">Manager Email (for dashboard)</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="manager@yourgym.com"
-                  required
-                  className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 8 characters"
-                  required
-                  className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
-                />
-              </div>
-
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="w-full bg-lime text-ink border-none py-4 font-heading font-extrabold text-[16px] tracking-[.08em] uppercase cursor-pointer transition-all duration-200 hover:bg-cream disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ clipPath: "polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))" }}
-              >
-                {isSubmitting ? "Creating..." : "Start 3-Month Free Trial →"}
-              </button>
+            <div className="flex justify-between text-[13px] mb-1.5 text-muted-color">
+              <span>Setup</span><span>Free</span>
             </div>
-          </>
-        ) : (
-          <div className="p-8">
-            <div className="font-heading font-black text-[28px] uppercase tracking-[.03em] mb-1">
-              {buildPct >= 100 ? "🎉 You&apos;re live!" : `Building ${gymName || "your gym"}...`}
+            <div className="flex justify-between text-[13px] mb-1.5 text-muted-color">
+              <span>First 3 months</span><span className="text-[#4ade80]">Free trial</span>
             </div>
-            <div className="text-[13px] text-muted-color mb-6">Takes about 30 seconds</div>
-
-            <div className="w-[90px] h-[180px] bg-[#0a0a08] rounded-2xl border-[3px] border-[#2a2826] mx-auto mb-5 relative overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,.6)]">
-              <div className="absolute left-0 right-0 h-[2px] bg-[linear-gradient(90deg,transparent,var(--lime),transparent)]" style={{ animation: "scan-anim 1.6s ease-in-out infinite", boxShadow: "0 0 8px var(--lime)" }} />
-            </div>
-
-            <div className="w-full h-[3px] bg-[rgba(245,239,224,.06)] mb-1.5">
-              <div className="h-full bg-lime transition-[width] duration-400" style={{ width: `${buildPct}%` }} />
-            </div>
-            <div className="font-heading text-[12px] text-lime text-right mb-[18px]">{Math.floor(buildPct)}%</div>
-
-            <div>
-              {BUILD_STEPS.map((step) => {
-                const isDone = completedSteps.has(step.id);
-                const isRunning = activeStep >= 0 && BUILD_STEPS[activeStep]?.id === step.id;
-                return (
-                  <div
-                    key={step.id}
-                    className={`flex items-center gap-2.5 py-[9px] border-b border-[var(--border-color)] text-[13px] transition-colors duration-300 ${
-                      isDone ? "text-cream" : isRunning ? "text-lime" : "text-[rgba(245,239,224,.3)]"
-                    }`}
-                  >
-                    <span className="text-[14px] w-5">{step.icon}</span>
-                    <span className="flex-1">{step.label}</span>
-                    {isRunning && <div className="w-[13px] h-[13px] rounded-full border-2 border-[rgba(202,255,51,.15)] border-t-lime shrink-0" style={{ animation: "spin .7s linear infinite" }} />}
-                    {isDone && <span className="text-lime text-[12px]">✓</span>}
-                  </div>
-                );
-              })}
+            <div className="flex justify-between text-[14px] pt-2.5 border-t border-[rgba(202,255,51,.15)] font-semibold text-lime">
+              <span>Total today</span><span>KES 0</span>
             </div>
           </div>
-        )}
+
+          <PaymentMethods />
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4 text-red-500 text-sm">
+              {error}
+            </div>
+          )}
+
+          <div className="mb-4">
+            <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">M-Pesa Phone Number</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="0712 345 678"
+              className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">Manager Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="John Doe"
+              required
+              className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">Manager Email (for dashboard)</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="manager@yourgym.com"
+              required
+              className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="text-[11px] text-muted-color uppercase tracking-[.08em] block mb-1.5">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Minimum 8 characters"
+              required
+              className="w-full bg-[rgba(245,239,224,.04)] border border-[var(--border-color)] text-cream py-3 px-3.5 font-body text-[14px] outline-none transition-border-color duration-200 focus:border-[rgba(202,255,51,.5)] rounded"
+            />
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full bg-lime text-ink border-none py-4 font-heading font-extrabold text-[16px] tracking-[.08em] uppercase cursor-pointer transition-all duration-200 hover:bg-cream disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ clipPath: "polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))" }}
+          >
+            {isSubmitting ? "Creating..." : "Start 3-Month Free Trial →"}
+          </button>
+        </div>
       </div>
     </div>
   );

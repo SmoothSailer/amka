@@ -15,7 +15,7 @@ async function apiRequest<T>(
     ...(options.headers as Record<string, string>),
   };
 
-  if (token) {
+  if (token && token !== "undefined" && token !== "null") {
     headers["Authorization"] = `Bearer ${token}`;
   }
 

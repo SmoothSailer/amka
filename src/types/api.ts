@@ -249,6 +249,18 @@ export interface BillingSummary {
   failed: number;
 }
 
+export interface PricingTier {
+  name: string;
+  price: string;
+  priceNum: number;
+  period: string;
+  members: string;
+  hot: boolean;
+  enterprise: boolean;
+  features: string[];
+  chips: string[];
+}
+
 export interface ValidationError {
   error: string;
   issues: Array<{ path: string[]; message: string; code: string }>;

@@ -12,38 +12,35 @@ import { FeaturesGrid } from "@/components/landing/features-grid";
 import { Pricing } from "@/components/landing/pricing";
 import { Configurator } from "@/components/landing/configurator";
 import { CheckoutModal } from "@/components/landing/checkout-modal";
-import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { Footer } from "@/components/landing/footer";
 import { CustomCursor } from "@/components/landing/custom-cursor";
-import { generateJoinCode, generateSlug } from "@/lib/configurator-utils";
 
 export default function LandingPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("starter");
   const [selectedPrice, setSelectedPrice] = useState("1500");
-  const [showDashboard, setShowDashboard] = useState(false);
-  const [dashGymName, setDashGymName] = useState("PowerZone Nairobi");
-  const [dashCode, setDashCode] = useState("PWR001");
-  const [dashSlug, setDashSlug] = useState("powerzone-nairobi");
+  const [gymName, setGymName] = useState("");
+  const [gymLocation, setGymLocation] = useState("");
+  const [gymPrimaryColor, setGymPrimaryColor] = useState("#CAFF33");
+  const [gymSecondaryColor, setGymSecondaryColor] = useState("#0D0C0A");
 
-  const handleOpenModal = useCallback((plan: string, price: string) => {
-    setSelectedPlan(plan);
-    setSelectedPrice(price);
-    setModalOpen(true);
-  }, []);
-
-  const handleBuildComplete = useCallback(() => {
-    const inputs = document.querySelectorAll<HTMLInputElement>('#configure input[type="text"]');
-    const name = inputs[0]?.value || "PowerZone Nairobi";
-    setDashGymName(name);
-    setDashCode(generateJoinCode(name));
-    setDashSlug(generateSlug(name));
-    setModalOpen(false);
-    setShowDashboard(true);
-    setTimeout(() => {
-      document.getElementById("dashboard")?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  }, []);
+  const handleOpenModal = useCallback(
+    (
+      plan: string,
+      price: string,
+      name: string,
+      options: { location: string; primaryColor: string; secondaryColor: string }
+    ) => {
+      setSelectedPlan(plan);
+      setSelectedPrice(price);
+      setGymName(name);
+      setGymLocation(options.location);
+      setGymPrimaryColor(options.primaryColor);
+      setGymSecondaryColor(options.secondaryColor);
+      setModalOpen(true);
+    },
+    []
+  );
 
   return (
     <>
@@ -63,14 +60,11 @@ export default function LandingPage() {
         onClose={() => setModalOpen(false)}
         plan={selectedPlan}
         price={selectedPrice}
-        gymName={dashGymName}
-        onComplete={handleBuildComplete}
+        gymName={gymName || "Your Gym"}
+        gymLocation={gymLocation}
+        primaryColor={gymPrimaryColor}
+        secondaryColor={gymSecondaryColor}
       />
-      {showDashboard && (
-        <div id="dashboard">
-          <DashboardPreview gymName={dashGymName} joinCode={dashCode} slug={dashSlug} />
-        </div>
-      )}
       <Footer />
     </>
   );

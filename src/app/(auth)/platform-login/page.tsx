@@ -34,6 +34,9 @@ export default function PlatformLoginPage() {
       }
 
       const { token } = data as PlatformLoginResponse;
+      if (!token) {
+        throw new Error("No token received from server");
+      }
       setAuthTokenClient(token, "platform");
       router.push("/platform/dashboard");
     } catch (err) {

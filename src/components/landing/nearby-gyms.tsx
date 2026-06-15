@@ -1,9 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { NEARBY_GYMS } from "@/lib/landing-data";
+import { useNearbyGyms } from "@/hooks/use-gym-discovery";
+
+const NAIROBI_CENTER = { lat: -1.2636, lng: 36.8047 };
+
+const MAP_PINS = [
+  { mapTop: "25%", mapLeft: "40%", color: "#FF5500", icon: "🏋️" },
+  { mapTop: "55%", mapLeft: "28%", color: "#2C3E50", icon: "💪" },
+  { mapTop: "40%", mapLeft: "70%", color: "#6C63FF", icon: "🏃" },
+  { mapTop: "70%", mapLeft: "55%", color: "#00B894", icon: "🏢" },
+];
 
 export function NearbyGyms() {
+  const { data: gyms } = useNearbyGyms(NAIROBI_CENTER.lat, NAIROBI_CENTER.lng, 10);
+
   return (
     <section id="nearby" className="bg-mid py-[100px] px-6 md:px-12 border-t border-[var(--border-color)]">
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
@@ -57,16 +68,13 @@ export function NearbyGyms() {
               }}
             />
 
-            {NEARBY_GYMS.map((gym, i) => (
-              <div key={i} className="absolute -translate-x-1/2 -translate-y-full flex flex-col items-center gap-[2px]" style={{ top: gym.mapTop, left: gym.mapLeft }}>
+            {MAP_PINS.map((pin, i) => (
+              <div key={i} className="absolute -translate-x-1/2 -translate-y-full flex flex-col items-center gap-[2px]" style={{ top: pin.mapTop, left: pin.mapLeft }}>
                 <div
                   className="w-9 h-9 rounded-[50%_50%_50%_0] -rotate-45 flex items-center justify-center text-[14px] shadow-[0_4px_12px_rgba(0,0,0,.4)]"
-                  style={{ background: gym.color }}
+                  style={{ background: pin.color }}
                 >
-                  <span className="rotate-45">{gym.icon}</span>
-                </div>
-                <div className="bg-[rgba(13,12,10,.9)] text-cream text-[10px] font-semibold py-[3px] px-2 rounded backdrop-blur-sm border border-[rgba(245,239,224,.1)] whitespace-nowrap">
-                  {gym.name.split(" ")[0]} · {gym.distance}
+                  <span className="rotate-45">{pin.icon}</span>
                 </div>
               </div>
             ))}
@@ -80,19 +88,22 @@ export function NearbyGyms() {
           </div>
 
           <div className="flex flex-col gap-[10px] mt-4">
-            {NEARBY_GYMS.slice(0, 3).map((gym, i) => (
+            {!gyms?.length && (
+              <div className="text-[13px] text-muted-color py-4 text-center">Loading nearby gyms...</div>
+            )}
+            {(gyms ?? []).slice(0, 3).map((gym) => (
               <div
-                key={i}
+                key={gym.id}
                 className="flex items-center gap-3 bg-[rgba(245,239,224,.03)] border border-[var(--border-color)] rounded-lg p-3 px-[14px] transition-all duration-200 hover:bg-[rgba(245,239,224,.06)] hover:border-[rgba(202,255,51,.2)]"
               >
-                <div className="w-1 h-10 rounded-sm shrink-0" style={{ background: gym.color }} />
+                <div className="w-1 h-10 rounded-sm shrink-0" style={{ background: gym.primaryColor }} />
                 <div className="flex-1">
-                  <div className="font-heading font-bold text-[15px] uppercase tracking-[.03em]">{gym.name}</div>
+                  <div className="font-heading font-bold text-[15px] uppercase tracking-[.03em]">{gym.gymName}</div>
                   <div className="text-[11px] text-muted-color mt-[1px]">
-                    {gym.location} · {gym.members > 0 ? `${gym.members} active members` : ""}
+                    {gym.location || gym.neighborhood || ""}{gym.activeMembers > 0 ? ` · ${gym.activeMembers} active members` : ""}
                   </div>
                 </div>
-                <div className="font-heading font-bold text-[14px] text-lime tracking-[.02em]">{gym.distance}</div>
+                <div className="font-heading font-bold text-[14px] text-lime tracking-[.02em]">{gym.distanceLabel}</div>
               </div>
             ))}
           </div>
