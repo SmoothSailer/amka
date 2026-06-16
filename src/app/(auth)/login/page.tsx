@@ -12,7 +12,6 @@ export default function GymLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [slug, setSlug] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -25,7 +24,7 @@ export default function GymLoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, slug }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -91,19 +90,6 @@ export default function GymLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              required
-              className="bg-background border-border"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="slug" className="text-cream">Gym Slug</Label>
-            <Input
-              id="slug"
-              type="text"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="powerzone-nairobi"
               required
               className="bg-background border-border"
             />
