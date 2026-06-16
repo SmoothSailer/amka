@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
@@ -12,6 +13,7 @@ const NAV_LINKS = [
 
 export function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-100 px-6 md:px-12 h-16 flex items-center justify-between bg-[rgba(13,12,10,.9)] backdrop-blur-xl border-b border-[var(--border-color)]">
@@ -29,13 +31,21 @@ export function Nav() {
             {link.label}
           </a>
         ))}
-        <button
-          onClick={() => document.getElementById("configure")?.scrollIntoView({ behavior: "smooth" })}
-          className="bg-lime text-ink px-[22px] py-[9px] font-heading font-bold text-[15px] tracking-[.06em] uppercase cursor-pointer border-none transition-all duration-200 hover:bg-cream hover:-translate-y-px"
-          style={{ clipPath: "polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))" }}
-        >
-          List Your Gym
-        </button>
+        <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={() => router.push("/login")}
+            className="bg-transparent text-cream px-[18px] py-[9px] font-heading font-bold text-[15px] tracking-[.06em] uppercase cursor-pointer border border-[rgba(245,239,224,.2)] transition-all duration-200 hover:border-lime hover:text-lime"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => document.getElementById("configure")?.scrollIntoView({ behavior: "smooth" })}
+            className="bg-lime text-ink px-[22px] py-[9px] font-heading font-bold text-[15px] tracking-[.06em] uppercase cursor-pointer border-none transition-all duration-200 hover:bg-cream hover:-translate-y-px"
+            style={{ clipPath: "polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))" }}
+          >
+            List Your Gym
+          </button>
+        </div>
       </div>
 
       <button
@@ -58,6 +68,15 @@ export function Nav() {
               {link.label}
             </a>
           ))}
+          <button
+            onClick={() => {
+              setMobileOpen(false);
+              router.push("/login");
+            }}
+            className="text-[14px] font-medium text-muted-color no-underline tracking-[.04em] uppercase py-2 hover:text-cream bg-transparent border-none cursor-pointer text-left"
+          >
+            Login
+          </button>
           <button
             onClick={() => {
               setMobileOpen(false);
