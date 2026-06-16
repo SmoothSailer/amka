@@ -2,13 +2,18 @@
 
 import { motion } from "framer-motion";
 import { JOIN_CODE_STEPS } from "@/lib/landing-data";
+import { useNearbyGyms } from "@/hooks/use-gym-discovery";
+
+const NAIROBI_CENTER = { lat: -1.2636, lng: 36.8047 };
 
 export function JoinCodeSpotlight() {
+  const { data: gyms } = useNearbyGyms(NAIROBI_CENTER.lat, NAIROBI_CENTER.lng, 10);
+  const joinCode = gyms?.[0]?.joinCode || "------";
   return (
     <section id="joincode" className="bg-terra py-20 px-6 md:px-12 relative overflow-hidden">
-      <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 font-heading font-black text-[200px] text-[rgba(255,255,255,.06)] tracking-[-.04em] uppercase pointer-events-none select-none leading-none">
-        PWR001
-      </div>
+          <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 font-heading font-black text-[200px] text-[rgba(255,255,255,.06)] tracking-[-.04em] uppercase pointer-events-none select-none leading-none">
+            {joinCode}
+          </div>
 
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         <motion.div
@@ -61,7 +66,7 @@ export function JoinCodeSpotlight() {
               Example join code
             </div>
             <div className="font-heading font-black text-[56px] tracking-[.25em] text-white leading-none">
-              PWR001
+              {joinCode}
             </div>
             <div className="text-[12px] text-[rgba(255,255,255,.5)] mt-2">
               6 characters · Uppercase · Given by your gym
