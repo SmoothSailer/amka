@@ -11,8 +11,25 @@ import type {
   Tenant,
   GymBenchmark,
   MpesaTransaction,
-  BillingSummary,
+  BillingCurrent,
+  BillingHistoryEntry,
 } from "@/types/api";
+
+const BASE = "/api/gym-proxy";
+
+async function proxyGet<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(
+      (data as { error?: string })?.error || `Request failed: ${res.status}`
+    );
+  }
+  return res.json();
+}
 
 export function useDashboardStats() {
   const token = useGymToken();
@@ -96,26 +113,21 @@ export function useBenchmarks(weeks = 12) {
   });
 }
 
-export function useBillingTransactions(page = 1, limit = 50, status?: string) {
-  const token = useGymToken();
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (status) params.set("status", status);
+export function useGymBillingCurrent() {
   return useQuery({
-    queryKey: ["gym", "billing", "transactions", page, limit, status],
-    queryFn: () =>
-      apiClient.get<{ transactions: MpesaTransaction[]; total: number; page: number }>(
-        `/api/admin/billing/transactions?${params}`,
-        { token: token || undefined }
-      ),
-    enabled: !!token,
+    queryKey: ["gym", "billing", "current"],
+    queryFn: () => proxyGet<BillingCurrent>("/api/admin/billing/current"),
+    retry: false,
   });
 }
 
-export function useBillingSummary() {
-  const token = useGymToken();
+export function useGymBillingHistory() {
   return useQuery({
-    queryKey: ["gym", "billing", "summary"],
-    queryFn: () => apiClient.get<BillingSummary>("/api/admin/billing/summary", { token: token || undefined }),
-    enabled: !!token,
+    queryKey: ["gym", "billing", "history"],
+    queryFn: () =>
+      proxyGet<{ transactions: BillingHistoryEntry[] }>("/api/admin/billing/history").then(
+        (r) => r.transactions
+      ),
+    retry: false,
   });
 }

@@ -5,7 +5,7 @@ export default async function GymAdminLayout({ children }: { children: React.Rea
   const gymData = await getGymData();
 
   return (
-    <div className="flex min-h-screen bg-ink">
+    <div className="flex min-h-screen bg-ink cursor-auto">
       <GymAdminSidebar
         gymName={gymData?.name || "Your Gym"}
         primaryColor={gymData?.primaryColor || "#CAFF33"}

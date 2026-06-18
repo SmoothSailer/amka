@@ -270,3 +270,60 @@ export interface ApiErrorResponse {
   error: string;
   statusCode?: number;
 }
+
+export interface PlatformMember {
+  id: string;
+  email: string;
+  phone: string;
+  preferredName: string;
+  membershipStatus: MembershipStatus;
+  onboardingCompleted: boolean;
+  lastSeenAt: string | null;
+  createdAt: string;
+  tenant: { id: string; gymName: string; slug: string };
+}
+
+export interface PlatformBill {
+  id: string;
+  tenantId: string;
+  period: string;
+  activeMemberCount: number;
+  basePriceKES: number;
+  extraMemberChargeKES: number;
+  totalAmountKES: number;
+  status: "PENDING" | "PAID" | "OVERDUE";
+  paidAt: string | null;
+  createdAt: string;
+  tenant?: { gymName: string; slug: string };
+}
+
+export interface BillingCurrent {
+  totalMembers: number;
+  activeMembers: number;
+  mrr: number;
+  pendingPayments: number;
+  failedPayments: number;
+  collectedThisMonth: number;
+}
+
+export interface BillingHistoryEntry {
+  id: string;
+  amount: number;
+  phone: string;
+  status: "PENDING" | "SUCCESS" | "FAILED";
+  reference: string;
+  date: string;
+}
+
+export interface MemberSubscription {
+  id: string;
+  memberId: string;
+  tenantId: string;
+  amount: number;
+  status: "PENDING" | "PAID" | "OVERDUE";
+  periodStart: string;
+  paidAt: string | null;
+  createdAt: string;
+  member?: { preferredName: string; phone: string; email: string };
+  tenant?: { gymName: string; slug: string };
+}

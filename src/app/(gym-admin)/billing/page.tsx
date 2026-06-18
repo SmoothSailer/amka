@@ -1,18 +1,16 @@
 "use client";
 
-import { useBillingTransactions, useBillingSummary } from "@/hooks/use-gym-admin";
+import { useGymBillingCurrent, useGymBillingHistory } from "@/hooks/use-gym-admin";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table/data-table";
-import type { MpesaTransaction } from "@/types/api";
-import { TrendChart } from "@/components/charts/trend-chart";
+import type { BillingHistoryEntry } from "@/types/api";
+import { DollarSign, Clock, XCircle, AlertTriangle } from "lucide-react";
 
 export default function BillingPage() {
-  const { data: billingData, isLoading } = useBillingTransactions();
-  const { data: summary } = useBillingSummary();
+  const { data: current, isLoading: currentLoading } = useGymBillingCurrent();
+  const { data: transactions, isLoading: historyLoading } = useGymBillingHistory();
 
-  const transactions = billingData?.transactions;
-
-  const columns: ColumnDef<MpesaTransaction>[] = [
+  const columns: ColumnDef<BillingHistoryEntry>[] = [
     {
       accessorKey: "amount",
       header: "Amount",
@@ -36,24 +34,33 @@ export default function BillingPage() {
         );
       },
     },
-    { accessorKey: "mpesaRef", header: "Reference" },
+    { accessorKey: "reference", header: "Reference" },
     {
-      accessorKey: "createdAt",
+      accessorKey: "date",
       header: "Date",
-      cell: ({ row }) => new Date(row.getValue("createdAt") as string).toLocaleDateString(),
+      cell: ({ row }) => new Date(row.getValue("date") as string).toLocaleDateString(),
     },
   ];
 
-  const revenueData = Array.from({ length: 30 }, (_, i) => ({
-    date: new Date(2025, 0, 1 + i).toISOString().split("T")[0],
-    count: 10000 + (i * 1500) % 50000,
-  }));
+  if (currentLoading || historyLoading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="h-10 w-48 bg-[rgba(245,239,224,.06)] rounded" />
+        <div className="grid grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-card border border-border rounded-xl p-6">
+              <div className="h-4 w-24 bg-[rgba(245,239,224,.06)] rounded mb-3" />
+              <div className="h-8 w-20 bg-[rgba(245,239,224,.1)] rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-  const totalRevenue = summary?.totalCollected ?? 0;
-  const pendingPayments = summary?.pending ?? 0;
-  const failedPayments = summary?.failed ?? 0;
-
-  if (isLoading) return <div className="text-cream">Loading...</div>;
+  const totalRevenue = current?.collectedThisMonth ?? 0;
+  const pending = current?.pendingPayments ?? 0;
+  const failed = current?.failedPayments ?? 0;
 
   return (
     <div className="space-y-8">
@@ -64,26 +71,44 @@ export default function BillingPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-card border border-border rounded-xl p-6">
-          <p className="text-sm text-muted-foreground uppercase tracking-wider">Total Revenue</p>
+          <DollarSign className="w-8 h-8 text-primary mb-3" />
+          <p className="text-sm text-muted-foreground uppercase tracking-wider">Collected This Month</p>
           <p className="text-3xl font-bold text-cream mt-2">KES {totalRevenue.toLocaleString()}</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-6">
+          <Clock className="w-8 h-8 text-yellow-500 mb-3" />
           <p className="text-sm text-muted-foreground uppercase tracking-wider">Pending</p>
-          <p className="text-3xl font-bold text-yellow-500 mt-2">{pendingPayments}</p>
+          <p className="text-3xl font-bold text-yellow-500 mt-2">{pending}</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-6">
+          <XCircle className="w-8 h-8 text-red-500 mb-3" />
           <p className="text-sm text-muted-foreground uppercase tracking-wider">Failed</p>
-          <p className="text-3xl font-bold text-red-500 mt-2">{failedPayments}</p>
+          <p className="text-3xl font-bold text-red-500 mt-2">{failed}</p>
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-xl p-6">
-        <h3 className="font-heading font-bold text-lg text-cream mb-4">Revenue Trend (Last 30 Days)</h3>
-        <TrendChart data={revenueData} color="#CAFF33" />
-      </div>
+      {current && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-card border border-border rounded-xl p-6">
+            <p className="text-sm text-muted-foreground uppercase tracking-wider">Total Members</p>
+            <p className="text-2xl font-bold text-cream mt-1">{current.totalMembers}</p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-6">
+            <p className="text-sm text-muted-foreground uppercase tracking-wider">Active Members</p>
+            <p className="text-2xl font-bold text-green-500 mt-1">{current.activeMembers}</p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-6">
+            <p className="text-sm text-muted-foreground uppercase tracking-wider">Est. MRR</p>
+            <p className="text-2xl font-bold text-cream mt-1">KES {current.mrr.toLocaleString()}</p>
+          </div>
+        </div>
+      )}
 
       <div className="bg-card border border-border rounded-xl p-6">
-        <h3 className="font-heading font-bold text-lg text-cream mb-6">Transactions</h3>
+        <h3 className="font-heading font-bold text-lg text-cream mb-6">Transaction History</h3>
+        {!transactions?.length && (
+          <p className="text-muted-foreground text-sm">No transactions yet</p>
+        )}
         {transactions && <DataTable columns={columns} data={transactions} searchKey="phone" searchPlaceholder="Search by phone..." />}
       </div>
     </div>
