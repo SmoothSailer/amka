@@ -19,7 +19,7 @@ export default function InviteAcceptPage() {
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink px-4">
+    <div className="min-h-screen flex items-center justify-center bg-ink px-4 cursor-auto">
       <div className="text-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
         <p className="text-cream">Loading...</p>
@@ -68,7 +68,7 @@ function InviteAcceptContent() {
 
   if (verifying) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ink px-4">
+      <div className="min-h-screen flex items-center justify-center bg-ink px-4 cursor-auto">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
           <p className="text-cream">Verifying invite...</p>
@@ -79,7 +79,7 @@ function InviteAcceptContent() {
 
   if (verifyError || !verifyData?.valid) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ink px-4">
+      <div className="min-h-screen flex items-center justify-center bg-ink px-4 cursor-auto">
         <div className="w-full max-w-md text-center">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="font-heading font-black text-2xl text-cream mb-2">Invalid Invite</h1>
@@ -99,7 +99,7 @@ function InviteAcceptContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ink px-4">
+      <div className="min-h-screen flex items-center justify-center bg-ink px-4 cursor-auto">
         <div className="w-full max-w-md text-center">
           <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h1 className="font-heading font-black text-2xl text-cream mb-2">Account Created!</h1>
@@ -114,7 +114,7 @@ function InviteAcceptContent() {
   const invite = verifyData.invite;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink px-4">
+    <div className="min-h-screen flex items-center justify-center bg-ink px-4 cursor-auto">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="font-heading font-black text-4xl text-cream">
